@@ -6,65 +6,24 @@
 <title>Wilquer Bosque Advogado — Acesso</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{
-  font-family:'Segoe UI',system-ui,sans-serif;
-  background:linear-gradient(135deg,#0D1B2E 0%,#1C2E4A 60%,#243858 100%);
-  min-height:100vh;display:flex;align-items:center;justify-content:center;
-  padding:20px;
-}
-.card{
-  background:#fff;border-radius:16px;
-  box-shadow:0 24px 64px rgba(0,0,0,.35);
-  width:100%;max-width:420px;overflow:hidden;
-}
-.card-top{
-  background:#fff;padding:40px 40px 24px;text-align:center;
-  border-bottom:1px solid #E8ECF2;
-}
-.card-top img{width:200px;height:auto;margin:0 auto 0;display:block}
-.card-divider{
-  display:flex;align-items:center;gap:10px;
-  font-size:11px;color:#8A96AA;text-transform:uppercase;letter-spacing:.08em;
-  margin:16px 0 0;
-}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135deg,#0D1B2E 0%,#1C2E4A 60%,#243858 100%);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.card{background:#fff;border-radius:16px;box-shadow:0 24px 64px rgba(0,0,0,.35);width:100%;max-width:420px;overflow:hidden}
+.card-top{background:#fff;padding:40px 40px 20px;text-align:center;border-bottom:1px solid #E8ECF2}
+.card-top img{width:200px;height:auto;margin:0 auto;display:block}
+.card-divider{display:flex;align-items:center;gap:10px;font-size:11px;color:#8A96AA;text-transform:uppercase;letter-spacing:.08em;margin:16px 0 0}
 .card-divider::before,.card-divider::after{content:'';flex:1;height:1px;background:#E8ECF2}
-.card-body{padding:28px 40px 36px}
-.form-group{margin-bottom:18px}
-.form-group label{
-  display:block;font-size:12px;font-weight:600;
-  color:#4A5568;margin-bottom:6px;letter-spacing:.03em;
-}
-.form-group input{
-  width:100%;padding:11px 14px;
-  border:1.5px solid #D6DAE3;border-radius:8px;
-  font-size:14px;color:#1A1E2E;font-family:inherit;
-  transition:border .15s,box-shadow .15s;outline:none;
-  background:#FAFBFC;
-}
-.form-group input:focus{
-  border-color:#1C2E4A;
-  box-shadow:0 0 0 3px rgba(28,46,74,.1);
-  background:#fff;
-}
-.form-group input.error{border-color:#8B2020;box-shadow:0 0 0 3px rgba(139,32,32,.08)}
-.btn-login{
-  width:100%;padding:12px;
-  background:#1C2E4A;color:#fff;
-  border:none;border-radius:8px;
-  font-size:14px;font-weight:600;font-family:inherit;
-  cursor:pointer;transition:background .15s,transform .1s;
-  letter-spacing:.02em;margin-top:4px;
-}
+.card-body{padding:28px 40px 32px}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:12px;font-weight:600;color:#4A5568;margin-bottom:6px}
+.form-group input{width:100%;padding:11px 14px;border:1.5px solid #D6DAE3;border-radius:8px;font-size:14px;color:#1A1E2E;font-family:inherit;transition:border .15s,box-shadow .15s;outline:none;background:#FAFBFC}
+.form-group input:focus{border-color:#1C2E4A;box-shadow:0 0 0 3px rgba(28,46,74,.1);background:#fff}
+.form-group input.error{border-color:#8B2020}
+.btn-login{width:100%;padding:12px;background:#1C2E4A;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;transition:background .15s;margin-top:4px}
 .btn-login:hover{background:#0D1B2E}
-.btn-login:active{transform:scale(.99)}
-.error-msg{
-  font-size:12px;color:#8B2020;margin-top:8px;
-  text-align:center;min-height:18px;font-weight:500;
-}
-.footer-txt{
-  text-align:center;font-size:11px;color:#B0B8C8;
-  padding:0 40px 20px;
-}
+.btn-login:disabled{background:#8A96AA;cursor:not-allowed}
+.error-msg{font-size:12px;color:#8B2020;margin-top:8px;text-align:center;min-height:18px;font-weight:500}
+.loading{font-size:12px;color:#8A96AA;margin-top:8px;text-align:center;display:none}
+.footer-txt{text-align:center;font-size:11px;color:#B0B8C8;padding:0 40px 20px}
 </style>
 </head>
 <body>
@@ -75,61 +34,74 @@ body{
   </div>
   <div class="card-body">
     <div class="form-group">
-      <label>Usuário</label>
-      <input type="text" id="login" placeholder="usuario.sobrenome" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()">
+      <label>E-mail</label>
+      <input type="email" id="email" placeholder="seu@email.com" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()">
     </div>
     <div class="form-group">
       <label>Senha</label>
       <input type="password" id="senha" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
     </div>
     <div class="error-msg" id="err"></div>
-    <button class="btn-login" onclick="doLogin()">Entrar</button>
+    <div class="loading" id="loading">Verificando credenciais...</div>
+    <button class="btn-login" id="btn-login" onclick="doLogin()">Entrar</button>
   </div>
   <div class="footer-txt">Wilquer Bosque Advogado &mdash; Sistema de Gestão Jurídica</div>
 </div>
 
-<script>
-// Hashes SHA-256 das senhas (gerados offline — senhas nunca ficam em texto puro)
-const USERS = {
-  'wilquer.bosque': '287ca6da17a36c15838143a8743dd78f6b5c17dd45fa98d49a8936979cfa7472',
-  'vivian.franca':  '507062e194a3cca0d35be3ea60fb086fcf93663a80ff502bf8141d62ee425d72'
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCQpFaqdLnOSDkgTpFu9aBbs9xRpgDwamc",
+  authDomain: "sistema-juridico-349e4.firebaseapp.com",
+  projectId: "sistema-juridico-349e4",
+  storageBucket: "sistema-juridico-349e4.firebasestorage.app",
+  messagingSenderId: "1021665744350",
+  appId: "1:1021665744350:web:c7cb34a33adf9c2853794f"
 };
 
-async function sha256(msg) {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(msg));
-  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
-}
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
-async function doLogin() {
-  const login = document.getElementById('login').value.trim().toLowerCase();
+// Se já estiver logado, redireciona direto
+onAuthStateChanged(auth, user => {
+  if(user) window.location.href = 'sistema.html';
+});
+
+window.doLogin = async function(){
+  const email = document.getElementById('email').value.trim();
   const senha = document.getElementById('senha').value;
   const err   = document.getElementById('err');
-  const inp1  = document.getElementById('login');
-  const inp2  = document.getElementById('senha');
+  const load  = document.getElementById('loading');
+  const btn   = document.getElementById('btn-login');
 
-  inp1.classList.remove('error'); inp2.classList.remove('error');
+  document.getElementById('email').classList.remove('error');
+  document.getElementById('senha').classList.remove('error');
   err.textContent = '';
 
-  if(!login || !senha) {
-    if(!login) inp1.classList.add('error');
-    if(!senha) inp2.classList.add('error');
-    err.textContent = 'Preencha usuário e senha.';
+  if(!email || !senha){
+    if(!email) document.getElementById('email').classList.add('error');
+    if(!senha) document.getElementById('senha').classList.add('error');
+    err.textContent = 'Preencha e-mail e senha.';
     return;
   }
 
-  const hash = await sha256(senha);
+  btn.disabled = true;
+  load.style.display = 'block';
 
-  if(USERS[login] && USERS[login] === hash) {
-    // Grava sessão (expira ao fechar o navegador)
-    sessionStorage.setItem('jg_auth', login);
-    sessionStorage.setItem('jg_auth_ts', Date.now());
+  try{
+    await signInWithEmailAndPassword(auth, email, senha);
     window.location.href = 'sistema.html';
-  } else {
-    inp1.classList.add('error'); inp2.classList.add('error');
-    err.textContent = 'Usuário ou senha incorretos.';
+  } catch(e){
+    load.style.display = 'none';
+    btn.disabled = false;
+    document.getElementById('email').classList.add('error');
+    document.getElementById('senha').classList.add('error');
+    err.textContent = 'E-mail ou senha incorretos.';
     document.getElementById('senha').value = '';
   }
-}
+};
 </script>
 </body>
 </html>

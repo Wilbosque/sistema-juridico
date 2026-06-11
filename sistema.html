@@ -169,6 +169,8 @@ tr:hover td{background:#FAFAF8}
     <button class="ni active" onclick="showPage('dashboard',this)"><span class="ni-icon">📊</span>Dashboard</button>
     <button class="ni" onclick="showPage('processos',this)"><span class="ni-icon">📁</span>Processos<span class="nb" id="nb-proc" style="display:none"></span></button>
     <button class="ni" onclick="showPage('prazos',this)"><span class="ni-icon">⏰</span>Prazos<span class="nb" id="nb-prazos" style="display:none"></span></button>
+    <div class="nav-section">Ferramentas</div>
+    <button class="ni" onclick="showPage('relatorios',this)"><span class="ni-icon">📄</span>Relatórios</button>
     <div class="nav-section">Configurações</div>
     <button class="ni" onclick="showPage('suspensoes',this)"><span class="ni-icon">📅</span>Suspensões</button>
   </nav>
@@ -199,6 +201,16 @@ tr:hover td{background:#FAFAF8}
     <!-- DASHBOARD -->
     <div id="page-dashboard">
       <div class="metrics" id="metrics-container"></div>
+
+      <!-- PRAZOS DO DIA -->
+      <div id="prazos-dia-section" style="margin-bottom:24px">
+        <div class="sec-title" style="display:flex;align-items:center;gap:8px">
+          🔴 Prazos do dia
+          <span id="prazos-dia-count" style="background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:1px 7px;border-radius:10px;display:none"></span>
+        </div>
+        <div class="tc" id="prazos-dia-wrap"></div>
+      </div>
+
       <div class="chart-grid">
         <div class="cc"><div class="sec-title">Por tipo de ação</div><div id="chart-tipos"></div></div>
         <div class="cc"><div class="sec-title">Status dos prazos</div><div id="chart-prazos"></div></div>
@@ -236,6 +248,50 @@ tr:hover td{background:#FAFAF8}
           <tbody id="prazos-tbody"></tbody>
         </table>
       </div></div>
+    </div>
+
+    <!-- RELATÓRIOS -->
+    <div id="page-relatorios" style="display:none">
+      <div class="alert-info" style="margin-bottom:20px">
+        📄 Selecione o período desejado para gerar um relatório em PDF com todos os prazos em aberto dentro do intervalo informado.
+      </div>
+      <div class="tc" style="padding:24px;margin-bottom:20px">
+        <div class="fg" style="max-width:600px">
+          <div class="fl">
+            <label>Data inicial *</label>
+            <input type="date" id="rel-inicio">
+          </div>
+          <div class="fl">
+            <label>Data final *</label>
+            <input type="date" id="rel-fim">
+          </div>
+          <div class="fl ff" style="margin-top:4px">
+            <label>Filtrar por tribunal (opcional)</label>
+            <select id="rel-tribunal">
+              <option value="">Todos os tribunais</option>
+            </select>
+          </div>
+          <div class="fl ff" style="margin-top:4px">
+            <label>Filtrar por tipo de ação (opcional)</label>
+            <select id="rel-tipo-acao">
+              <option value="">Todos os tipos</option>
+              <option>Trabalhista</option>
+              <option>Cível</option>
+              <option>Consumidor</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-top:20px;display:flex;gap:10px;align-items:center">
+          <button class="btn btn-primary" onclick="gerarRelatorio()">🖨 Gerar PDF</button>
+          <button class="btn" onclick="previewRelatorio()">👁 Pré-visualizar</button>
+          <span id="rel-count" style="font-size:13px;color:var(--text3)"></span>
+        </div>
+      </div>
+      <!-- Preview -->
+      <div id="rel-preview" style="display:none">
+        <div class="sec-title">Pré-visualização</div>
+        <div class="tc"><div class="tw" id="rel-preview-content"></div></div>
+      </div>
     </div>
 
     <!-- SUSPENSÕES -->
@@ -334,7 +390,19 @@ tr:hover td{background:#FAFAF8}
             <option value="">Selecione</option>
             <option value="TJBA-1G">TJBA – 1º Grau / Juizados</option>
             <option value="TJBA-2G">TJBA – 2º Grau / Turmas Recursais</option>
-            <option value="outro">Outro tribunal</option>
+            <optgroup label="Tribunais Estaduais">
+              <option value="TJAC">TJAC</option><option value="TJAL">TJAL</option><option value="TJAM">TJAM</option><option value="TJAP">TJAP</option><option value="TJBA">TJBA</option><option value="TJCE">TJCE</option><option value="TJDF">TJDF</option><option value="TJES">TJES</option><option value="TJGO">TJGO</option><option value="TJMA">TJMA</option><option value="TJMG">TJMG</option><option value="TJMS">TJMS</option><option value="TJMT">TJMT</option><option value="TJPA">TJPA</option><option value="TJPB">TJPB</option><option value="TJPE">TJPE</option><option value="TJPI">TJPI</option><option value="TJPR">TJPR</option><option value="TJRJ">TJRJ</option><option value="TJRN">TJRN</option><option value="TJRO">TJRO</option><option value="TJRR">TJRR</option><option value="TJRS">TJRS</option><option value="TJSC">TJSC</option><option value="TJSE">TJSE</option><option value="TJSP">TJSP</option><option value="TJTO">TJTO</option>
+            </optgroup>
+            <optgroup label="Tribunais do Trabalho">
+              <option value="TRT1">TRT1</option><option value="TRT2">TRT2</option><option value="TRT3">TRT3</option><option value="TRT4">TRT4</option><option value="TRT5">TRT5</option><option value="TRT6">TRT6</option><option value="TRT7">TRT7</option><option value="TRT8">TRT8</option><option value="TRT9">TRT9</option><option value="TRT10">TRT10</option><option value="TRT11">TRT11</option><option value="TRT12">TRT12</option><option value="TRT13">TRT13</option><option value="TRT14">TRT14</option><option value="TRT15">TRT15</option><option value="TRT16">TRT16</option><option value="TRT17">TRT17</option><option value="TRT18">TRT18</option><option value="TRT19">TRT19</option><option value="TRT20">TRT20</option><option value="TRT21">TRT21</option><option value="TRT22">TRT22</option><option value="TRT23">TRT23</option><option value="TRT24">TRT24</option>
+            </optgroup>
+            <optgroup label="Tribunais Regionais Federais">
+              <option value="TRF1">TRF1</option><option value="TRF2">TRF2</option><option value="TRF3">TRF3</option><option value="TRF4">TRF4</option><option value="TRF5">TRF5</option><option value="TRF6">TRF6</option>
+            </optgroup>
+            <optgroup label="Tribunais Superiores">
+              <option value="STJ">STJ</option><option value="STF">STF</option><option value="TST">TST</option><option value="TSE">TSE</option><option value="STM">STM</option>
+            </optgroup>
+            <option value="outro">Outro (sem suspensões)</option>
           </select>
         </div>
         <div class="fl"><label>Dias úteis <span id="cp-dias-hint" style="font-weight:400;color:var(--text3)"></span></label>
@@ -432,8 +500,9 @@ tr:hover td{background:#FAFAF8}
 </div>
 
 <div class="toast" id="toast"></div>
+<div class="toast" id="toast"></div>
+<script type="module">
 
-<script>
 // ── Dados dos tipos de prazo ──────────────────────────────────────
 // maxDias: máximo permitido. msPrazo: true = prazo especial de 120 dias (MS)
 const TIPOS_PRAZO = [
@@ -545,13 +614,48 @@ function syncCalcDias(t){
   calcPrazoAvulso();
 }
 
-// ── Storage ────────────────────────────────────────────────────────
-const KP='jg_proc_v3', KZ='jg_prazos_v3', KS='jg_susp_v1';
-function load(k){try{const r=localStorage.getItem(k);return r?JSON.parse(r):[]}catch{return[]}}
-function persist(){localStorage.setItem(KP,JSON.stringify(processos));localStorage.setItem(KZ,JSON.stringify(prazos));localStorage.setItem(KS,JSON.stringify(suspensoes))}
-
-let processos=load(KP), prazos=load(KZ), suspensoes=load(KS);
+// ── Dados em memória (carregados do Firestore) ─────────────────────
+let processos=[], prazos=[], suspensoes=[];
 let editingId=null, editingSuspId=null;
+let _db = null; // será definido após init Firebase
+
+function getDb(){ return _db; }
+
+// Salvar no Firestore
+async function persist(){
+  if(!_db || !_currentUser) return;
+  const uid = _currentUser.uid;
+  try{
+    const { doc, setDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+    await setDoc(doc(_db,'usuarios',uid), {
+      processos: JSON.stringify(processos),
+      prazos:    JSON.stringify(prazos),
+      suspensoes:JSON.stringify(suspensoes),
+      updatedAt: new Date().toISOString()
+    });
+  } catch(e){
+    console.error('Erro ao salvar:', e);
+    toast('Erro ao salvar dados. Verifique sua conexão.','error');
+  }
+}
+
+// Carregar do Firestore
+async function loadFromFirestore(uid){
+  const { doc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+  try{
+    const snap = await getDoc(doc(_db,'usuarios',uid));
+    if(snap.exists()){
+      const d = snap.data();
+      processos  = JSON.parse(d.processos  || '[]');
+      prazos     = JSON.parse(d.prazos     || '[]');
+      suspensoes = JSON.parse(d.suspensoes || '[]');
+    }
+  } catch(e){
+    console.error('Erro ao carregar:', e);
+  }
+}
+
+let _currentUser = null;
 
 const TODOS_TRIBS=[
   'TJBA-1G','TJBA-2G',
@@ -584,28 +688,58 @@ function isFeriadoNacional(ds){
   return FERIADOS_FIXOS.includes(key)||vars.includes(ds);
 }
 
-function isDiaSuspenso(ds,tribId){
-  if(!tribId||tribId==='outro') return false;
-  return suspensoes.some(s=>s.tribunais.includes(tribId)&&ds>=s.inicio&&ds<=s.fim);
+// ── IDs compatíveis para verificação de suspensão ────────────────
+function tribIds(tribId){
+  if(!tribId||tribId==='outro') return [];
+  const ids=[tribId];
+  if(tribId==='TJBA-1G'||tribId==='TJBA-2G') ids.push('TJBA');
+  if(tribId==='TJBA') ids.push('TJBA-1G','TJBA-2G');
+  return ids;
 }
 
-function isDiaUtil(ds,tribId){
-  const dow=new Date(ds+'T12:00:00').getDay();
-  return dow!==0&&dow!==6&&!isFeriadoNacional(ds)&&!isDiaSuspenso(ds,tribId);
+// ── Verifica se uma data (YYYY-MM-DD) está suspensa para o tribunal ──
+function isDiaSuspenso(ds, tribId){
+  const ids = tribIds(tribId);
+  if(!ids.length) return false;
+  return suspensoes.some(s =>
+    ids.some(id => s.tribunais.includes(id)) &&
+    ds >= s.inicio && ds <= s.fim
+  );
 }
 
-function calcularPrazoFatal(inicioStr,dias,tribId){
-  if(!inicioStr||!dias||dias<1) return null;
-  let d=new Date(inicioStr+'T12:00:00'); d.setDate(d.getDate()+1);
-  let contados=0;
-  while(true){
-    const ds=d.toISOString().slice(0,10);
-    if(isDiaUtil(ds,tribId)) contados++;
-    if(contados>=dias) break;
+// ── Verifica se uma data é dia útil ──────────────────────────────
+function isDiaUtil(ds, tribId){
+  const dow = new Date(ds+'T12:00:00').getDay();
+  if(dow===0||dow===6) return false;          // fim de semana
+  if(isFeriadoNacional(ds)) return false;     // feriado nacional
+  if(isDiaSuspenso(ds, tribId)) return false; // suspensão do tribunal
+  return true;
+}
+
+// ── Calcula prazo fatal ──────────────────────────────────────────
+// Regra: o prazo começa no 1º dia útil APÓS a intimação e conta N dias úteis
+function calcularPrazoFatal(intimacaoStr, nDias, tribId){
+  if(!intimacaoStr || !nDias || nDias < 1) return null;
+
+  // Avança para o dia seguinte à intimação
+  let d = new Date(intimacaoStr + 'T12:00:00');
+  d.setDate(d.getDate() + 1);
+
+  // Busca o primeiro dia útil a partir daí
+  let ds = d.toISOString().slice(0,10);
+  while(!isDiaUtil(ds, tribId)){
     d.setDate(d.getDate()+1);
+    ds = d.toISOString().slice(0,10);
   }
-  let ds=d.toISOString().slice(0,10);
-  while(!isDiaUtil(ds,tribId)){ d.setDate(d.getDate()+1); ds=d.toISOString().slice(0,10); }
+
+  // Conta os dias úteis (o primeiro já está no contador)
+  let contados = 1;
+  while(contados < nDias){
+    d.setDate(d.getDate()+1);
+    ds = d.toISOString().slice(0,10);
+    if(isDiaUtil(ds, tribId)) contados++;
+  }
+
   return ds;
 }
 
@@ -727,7 +861,7 @@ function openAddModal(id=null){
   openModal('proc');
 }
 
-function saveProcesso(){
+async function saveProcesso(){
   let ok=true;
   const req=(fid,eid)=>{const v=document.getElementById(fid).value.trim();if(!v){document.getElementById(fid).classList.add('err');document.getElementById(eid).classList.add('show');ok=false}else{document.getElementById(fid).classList.remove('err');document.getElementById(eid).classList.remove('show')}return v};
   const tipo=req('f-tipo','e-tipo'),autor=req('f-autor','e-autor'),reu=req('f-reu','e-reu'),orgao=req('f-orgao','e-orgao'),tribunal=req('f-tribunal','e-tribunal');
@@ -749,14 +883,14 @@ function saveProcesso(){
     processos.push({id:'p'+Date.now(),tipo,numero,autor,reu,orgao,tribunal,rito,comarca,advAutor,advReu,obs,valor,criadoEm:today()});
     toast('Processo cadastrado','success');
   }
-  persist();closeModal('proc');renderAll();
+  await persist();closeModal('proc');renderAll();
 }
 
-function deleteProcesso(id){
+async function deleteProcesso(id){
   if(!confirm('Remover este processo e todos os seus prazos?'))return;
   processos=processos.filter(x=>x.id!==id);
   prazos=prazos.filter(x=>x.processoId!==id);
-  persist();renderAll();toast('Processo removido');
+  await await persist();renderAll();toast('Processo removido');
 }
 
 // ── Modal prazo ────────────────────────────────────────────────────
@@ -775,17 +909,21 @@ function openPrazoModal(procId){
   document.getElementById('cp-dias-hint').textContent='';
   document.querySelectorAll('#modal-prazo .fem').forEach(e=>e.classList.remove('show'));
   document.querySelectorAll('#modal-prazo .err').forEach(e=>e.classList.remove('err'));
-  // Pre-preencher tribunal na calculadora
+  // Pre-selecionar tribunal na calculadora com base no processo
   if(p&&p.tribunal){
-    const tv=p.tribunal==='TJBA'?'TJBA-1G':p.tribunal;
-    const opt=document.querySelector(`#cp-trib option[value="${tv}"]`);
-    if(opt) document.getElementById('cp-trib').value=tv;
+    // TJBA mapeia para 1º Grau por padrão; usuário pode trocar para 2º Grau
+    const tv = p.tribunal === 'TJBA' ? 'TJBA-1G' : p.tribunal;
+    const sel = document.getElementById('cp-trib');
+    // Verifica se a opção existe no select
+    const existe = Array.from(sel.options).some(o => o.value === tv);
+    sel.value = existe ? tv : '';
+    calcPrazoAvulso();
   }
   buildTipoPrazoSelect('fp-tipo');
   closeModal('detail');openModal('prazo');
 }
 
-function savePrazo(){
+async function savePrazo(){
   const tipo=document.getElementById('fp-tipo').value;
   const dias=parseInt(document.getElementById('fp-dias').value)||0;
   const elab=document.getElementById('fp-elab').value;
@@ -805,16 +943,16 @@ function savePrazo(){
   const t=getTipoPrazo(tipo);
   if(t&&dias>t.maxDias){toast(`Máximo de ${t.maxDias} dias para "${tipo}"`, 'error');return}
   prazos.push({id:'pz'+Date.now(),processoId:procId,tipo,dias,elaboracao:elab,fatal,obs,status:'Em aberto'});
-  persist();closeModal('prazo');renderAll();toast('Prazo adicionado','success');
+  await persist();closeModal('prazo');renderAll();toast('Prazo adicionado','success');
 }
 
-function togglePrazo(id){
+async function togglePrazo(id){
   const pz=prazos.find(x=>x.id===id);
-  if(pz){pz.status=pz.status==='Cumprido'?'Em aberto':'Cumprido';persist();renderAll();toast(pz.status==='Cumprido'?'Prazo cumprido ✓':'Prazo reaberto')}
+  if(pz){pz.status=pz.status==='Cumprido'?'Em aberto':'Cumprido';await await persist();renderAll();toast(pz.status==='Cumprido'?'Prazo cumprido ✓':'Prazo reaberto')}
 }
-function deletePrazo(id){
+async function deletePrazo(id){
   if(!confirm('Remover este prazo?'))return;
-  prazos=prazos.filter(x=>x.id!==id);persist();renderAll();toast('Prazo removido');
+  prazos=prazos.filter(x=>x.id!==id);await await persist();renderAll();toast('Prazo removido');
 }
 
 // ── Detalhe ─────────────────────────────────────────────────────────
@@ -883,7 +1021,7 @@ function openSuspModal(id=null){
   openModal('susp');
 }
 
-function saveSuspensao(){
+async function saveSuspensao(){
   const desc=document.getElementById('fs-desc').value.trim();
   const ini=document.getElementById('fs-inicio').value;
   const fim=document.getElementById('fs-fim').value;
@@ -903,12 +1041,12 @@ function saveSuspensao(){
     suspensoes.push({id:'s'+Date.now(),descricao:desc,inicio:ini,fim,obs,tribunais:tribs});
     toast('Suspensão cadastrada','success');
   }
-  persist();closeModal('susp');renderSuspensoes();
+  await persist();closeModal('susp');renderSuspensoes();
 }
 
-function deleteSuspensao(id){
+async function deleteSuspensao(id){
   if(!confirm('Remover esta suspensão?'))return;
-  suspensoes=suspensoes.filter(x=>x.id!==id);persist();renderSuspensoes();toast('Suspensão removida');
+  suspensoes=suspensoes.filter(x=>x.id!==id);await persist();renderSuspensoes();toast('Suspensão removida');
 }
 
 function renderSuspensoes(){
@@ -920,15 +1058,18 @@ function renderSuspensoes(){
   const hoje=today();
   list.innerHTML=[...suspensoes].sort((a,b)=>a.inicio.localeCompare(b.inicio)).map(s=>{
     const ativa=hoje>=s.inicio&&hoje<=s.fim, passada=hoje>s.fim;
-    const dot=ativa?'var(--amber)':passada?'var(--text3)':'var(--green)';
+    // Dot: amarelo=em vigor, azul=futura, cinza=encerrada (mas todas são válidas para cálculo retroativo)
+    const dot=ativa?'var(--amber)':passada?'var(--silver)':'var(--green)';
     const dias=Math.ceil((new Date(s.fim+'T12:00:00')-new Date(s.inicio+'T12:00:00'))/864e5)+1;
     const tribs=(s.tribunais||[]).slice(0,12).map(t=>`<span class="badge b-neutral" style="font-size:10px">${t==='TJBA-1G'?'TJBA 1ºG':t==='TJBA-2G'?'TJBA 2ºG':t}</span>`).join('');
     const mais=s.tribunais.length>12?`<span style="font-size:11px;color:var(--text3)">+${s.tribunais.length-12}</span>`:'';
+    const statusLabel=ativa?' · <strong style="color:var(--amber)">Em vigor</strong>':passada?' · <span style="color:var(--text3)">Histórico</span>':' · <span style="color:var(--green)">Futura</span>';
     return`<div class="susp-item">
       <div class="susp-dot" style="background:${dot}"></div>
       <div class="susp-info">
         <div class="susp-titulo">${escH(s.descricao)}</div>
-        <div class="susp-periodo">${fmtDate(s.inicio)} — ${fmtDate(s.fim)} · ${dias} dia(s)${ativa?' · <strong>Em vigor</strong>':passada?' · Encerrada':''}</div>
+        <div class="susp-periodo">${fmtDate(s.inicio)} — ${fmtDate(s.fim)} · ${dias} dia(s)${statusLabel}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px">✓ Válida para cálculo de prazos retroativos</div>
         <div class="susp-tribunais">${tribs}${mais}</div>
         ${s.obs?`<div style="font-size:12px;color:var(--text3);margin-top:4px">${escH(s.obs)}</div>`:''}
       </div>
@@ -1048,15 +1189,19 @@ function renderPrazos(){
 }
 
 // ── Navegação ─────────────────────────────────────────────────────────
-const pgTitles={dashboard:['Dashboard','Visão geral'],processos:['Processos','Lista de processos cadastrados'],prazos:['Prazos','Controle de prazos e datas'],suspensoes:['Suspensões de prazo','Gerencie períodos de suspensão por tribunal']};
+const pgTitles={dashboard:['Dashboard','Visão geral'],processos:['Processos','Lista de processos cadastrados'],prazos:['Prazos','Controle de prazos e datas'],relatorios:['Relatórios','Gere relatórios de prazos em aberto por período'],suspensoes:['Suspensões de prazo','Gerencie períodos de suspensão por tribunal']};
 function showPage(name,btn){
-  Object.keys(pgTitles).forEach(p=>{document.getElementById('page-'+p).style.display=p===name?'':'none'});
+  Object.keys(pgTitles).forEach(p=>{
+    const el=document.getElementById('page-'+p);
+    if(el) el.style.display=p===name?'':'none';
+  });
   document.querySelectorAll('.ni').forEach(b=>b.classList.remove('active'));
   if(btn)btn.classList.add('active');
   const[t,s]=pgTitles[name]||[name,''];
   document.getElementById('pg-title').textContent=t;document.getElementById('pg-sub').textContent=s;
   const btnTop=document.getElementById('btn-top');
   if(name==='suspensoes'){btnTop.textContent='+ Nova suspensão';btnTop.onclick=openSuspModal}
+  else if(name==='relatorios'){btnTop.textContent='🖨 Gerar PDF';btnTop.onclick=gerarRelatorio}
   else{btnTop.textContent='+ Novo processo';btnTop.onclick=openAddModal}
 }
 
@@ -1067,16 +1212,16 @@ function exportData(){
   a.download=`jurisgestao_backup_${today()}.json`;a.click();
   toast('Backup exportado','success');
 }
-function importData(ev){
+async function importData(ev){
   const file=ev.target.files[0];if(!file)return;
   const reader=new FileReader();
-  reader.onload=e=>{
+  reader.onload=async e=>{
     try{
       const data=JSON.parse(e.target.result);
       if(!data.processos||!data.prazos)throw new Error();
       if(!confirm(`Importar ${data.processos.length} processo(s), ${data.prazos.length} prazo(s) e ${(data.suspensoes||[]).length} suspensão(ões)?\n\nISTO SUBSTITUIRÁ os dados atuais.`))return;
       processos=data.processos;prazos=data.prazos;suspensoes=data.suspensoes||[];
-      persist();renderAll();toast('Dados importados','success');
+      await await await persist();renderAll();toast('Dados importados e salvos na nuvem','success');
     }catch{toast('Arquivo inválido','error')}
     ev.target.value='';
   };
@@ -1084,32 +1229,285 @@ function importData(ev){
 }
 
 
-// ── Verificação de sessão ─────────────────────────────────────────
-(function(){
-  const auth = sessionStorage.getItem('jg_auth');
-  if(!auth){ window.location.href='index.html'; }
-  // Exibir nome do usuário logado
-  const nomes = {'wilquer.bosque':'Wilquer Bosque','vivian.franca':'Vivian França'};
-  const nome = nomes[auth] || auth;
-  document.addEventListener('DOMContentLoaded', function(){
-    const el = document.getElementById('user-name');
-    if(el) el.textContent = nome;
-  });
-})();
-
-function logout(){
+// ── Logout ────────────────────────────────────────────────────────
+async function logout(){
   if(confirm('Deseja sair do sistema?')){
-    sessionStorage.removeItem('jg_auth');
-    sessionStorage.removeItem('jg_auth_ts');
+    const { getAuth, signOut } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js');
+    await signOut(getAuth());
     window.location.href='index.html';
   }
 }
 
-// ── Init ───────────────────────────────────────────────────────────────
-function renderAll(){renderDashboard();renderProcessos();renderPrazos();renderSuspensoes()}
-document.addEventListener('keydown',e=>{if(e.key==='Escape')['proc','prazo','detail','susp'].forEach(m=>closeModal(m))});
-buildTipoPrazoSelect('fp-tipo');
-renderAll();
+// ── Prazos do dia ──────────────────────────────────────────────────
+function renderPrazosHoje(){
+  const hoje = today();
+  // Mostra: prazo fatal = hoje OU data de elaboração = hoje (e em aberto)
+  const lista = prazos.filter(pz => {
+    if(pz.status === 'Cumprido') return false;
+    return pz.fatal === hoje || pz.elaboracao === hoje;
+  }).sort((a,b)=>(a.fatal||'').localeCompare(b.fatal||''));
+
+  const count = document.getElementById('prazos-dia-count');
+  const wrap  = document.getElementById('prazos-dia-wrap');
+
+  if(!lista.length){
+    count.style.display='none';
+    wrap.innerHTML=`<div class="empty-state" style="padding:20px">
+      <div class="es">✅ Nenhum prazo fatal ou de elaboração para hoje</div>
+    </div>`;
+    return;
+  }
+
+  count.textContent = lista.length;
+  count.style.display = '';
+
+  wrap.innerHTML = lista.map(pz => {
+    const proc = processos.find(x=>x.id===pz.processoId);
+    const isFatal = pz.fatal === hoje;
+    const isElab  = pz.elaboracao === hoje;
+    const tagFatal = isFatal ? `<span class="badge b-late" style="font-size:11px">🔴 Prazo fatal HOJE</span>` : '';
+    const tagElab  = isElab  ? `<span class="badge b-open" style="background:var(--amber-l);color:var(--amber);font-size:11px">✏ Elaboração HOJE</span>` : '';
+    return `<div class="pi today" style="cursor:pointer" onclick="${proc?`showDetail('${proc.id}')`:''}" >
+      <div class="pinfo">
+        <div class="ptipo" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+          ${pz.tipo} ${tagFatal}${tagElab}
+        </div>
+        <div class="pproc">${proc ? proc.numero+' — '+proc.autor+' × '+proc.reu : '—'}</div>
+        ${proc ? `<div style="font-size:11px;color:var(--text3);margin-top:2px">${proc.tribunal||''} ${proc.orgao?'· '+proc.orgao:''}</div>` : ''}
+      </div>
+      <div class="pdate">
+        <div class="pdv">${fmtDate(pz.fatal)}</div>
+        <div class="pds">Prazo fatal</div>
+        ${pz.elaboracao?`<div class="pds" style="margin-top:2px">Elaboração: ${fmtDate(pz.elaboracao)}</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Relatório PDF ──────────────────────────────────────────────────
+function getRelFiltrados(){
+  const ini  = document.getElementById('rel-inicio').value;
+  const fim  = document.getElementById('rel-fim').value;
+  const trib = document.getElementById('rel-tribunal').value;
+  const tipo = document.getElementById('rel-tipo-acao').value;
+  if(!ini||!fim) return null;
+  return prazos.filter(pz=>{
+    if(pz.status==='Cumprido') return false;
+    if(!pz.fatal) return false;
+    if(pz.fatal < ini || pz.fatal > fim) return false;
+    const proc = processos.find(x=>x.id===pz.processoId);
+    if(trib && proc && proc.tribunal !== trib) return false;
+    if(tipo && proc && proc.tipo !== tipo) return false;
+    return true;
+  }).sort((a,b)=>a.fatal.localeCompare(b.fatal));
+}
+
+function popularFiltrosTribunal(){
+  const sel = document.getElementById('rel-tribunal');
+  if(!sel) return;
+  const cur = sel.value;
+  const tribs = [...new Set(processos.map(p=>p.tribunal).filter(Boolean))].sort();
+  sel.innerHTML = '<option value="">Todos os tribunais</option>' +
+    tribs.map(t=>`<option${t===cur?' selected':''}>${t}</option>`).join('');
+}
+
+function previewRelatorio(){
+  const ini = document.getElementById('rel-inicio').value;
+  const fim = document.getElementById('rel-fim').value;
+  if(!ini||!fim){ alert('Informe o período (data inicial e final)'); return; }
+  const lista = getRelFiltrados();
+  const countEl = document.getElementById('rel-count');
+  const preview = document.getElementById('rel-preview');
+  const content = document.getElementById('rel-preview-content');
+  if(!lista.length){
+    countEl.textContent = 'Nenhum prazo em aberto no período';
+    preview.style.display='none';
+    return;
+  }
+  countEl.textContent = lista.length + ' prazo(s) encontrado(s)';
+  preview.style.display='';
+  content.innerHTML = `<table>
+    <thead><tr>
+      <th>Prazo Fatal</th><th>Tipo de Prazo</th><th>Processo</th>
+      <th>Autor</th><th>Réu</th><th>Tribunal</th><th>Órgão Julgador</th>
+      <th>Dias</th><th>Elaboração</th>
+    </tr></thead>
+    <tbody>
+    ${lista.map(pz=>{
+      const proc = processos.find(x=>x.id===pz.processoId);
+      return `<tr>
+        <td style="font-weight:600;white-space:nowrap">${fmtDate(pz.fatal)}</td>
+        <td>${pz.tipo}</td>
+        <td class="td-mono">${proc?proc.numero:'—'}</td>
+        <td>${proc?proc.autor:'—'}</td>
+        <td>${proc?proc.reu:'—'}</td>
+        <td>${proc?proc.tribunal:'—'}</td>
+        <td>${proc?proc.orgao:'—'}</td>
+        <td style="text-align:center">${pz.dias||'—'}</td>
+        <td style="white-space:nowrap">${fmtDate(pz.elaboracao)}</td>
+      </tr>`;
+    }).join('')}
+    </tbody>
+  </table>`;
+}
+
+function gerarRelatorio(){
+  const ini = document.getElementById('rel-inicio').value;
+  const fim = document.getElementById('rel-fim').value;
+  if(!ini||!fim){ alert('Informe o período (data inicial e final)'); return; }
+  const lista = getRelFiltrados();
+  if(!lista.length){ alert('Nenhum prazo em aberto no período selecionado.'); return; }
+
+  const trib = document.getElementById('rel-tribunal').value;
+  const tipo = document.getElementById('rel-tipo-acao').value;
+
+  const linhas = lista.map(pz=>{
+    const proc = processos.find(x=>x.id===pz.processoId);
+    return `<tr>
+      <td style="font-weight:700;white-space:nowrap;color:#1C2E4A">${fmtDate(pz.fatal)}</td>
+      <td>${pz.tipo}</td>
+      <td style="font-family:monospace;font-size:11px">${proc?proc.numero:'—'}</td>
+      <td>${proc?proc.autor:'—'}</td>
+      <td>${proc?proc.reu:'—'}</td>
+      <td>${proc?proc.tribunal:'—'}</td>
+      <td>${proc?proc.orgao:'—'}</td>
+      <td style="text-align:center">${pz.dias||'—'}</td>
+      <td style="white-space:nowrap">${fmtDate(pz.elaboracao)}</td>
+    </tr>`;
+  }).join('');
+
+  const filtrosDesc = [
+    trib ? 'Tribunal: '+trib : '',
+    tipo ? 'Tipo: '+tipo : ''
+  ].filter(Boolean).join(' · ') || 'Sem filtros adicionais';
+
+  const w = window.open('','_blank');
+  w.document.write(`<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="UTF-8">
+<title>Relatório de Prazos — \${fmtDate(ini)} a \${fmtDate(fim)}</title>
+<style>
+  @page{size:A4 landscape;margin:15mm}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',Arial,sans-serif;font-size:11px;color:#1A1E2E;background:#fff}
+  .header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;padding-bottom:14px;border-bottom:2px solid #1C2E4A}
+  .header-left{}
+  .header-logo{font-size:22px;font-weight:700;color:#1C2E4A;letter-spacing:.02em}
+  .header-sub{font-size:11px;color:#8A96AA;margin-top:3px;letter-spacing:.05em;text-transform:uppercase}
+  .header-right{text-align:right}
+  .rel-titulo{font-size:14px;font-weight:700;color:#1C2E4A}
+  .rel-periodo{font-size:12px;color:#4A5568;margin-top:3px}
+  .rel-filtros{font-size:10px;color:#8A96AA;margin-top:2px}
+  .rel-gerado{font-size:10px;color:#8A96AA;margin-top:2px}
+  table{width:100%;border-collapse:collapse;font-size:10.5px}
+  thead tr{background:#1C2E4A;color:#fff}
+  th{padding:7px 8px;text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+  td{padding:6px 8px;border-bottom:1px solid #E8ECF2;vertical-align:top}
+  tr:nth-child(even) td{background:#F4F5F7}
+  tr:hover td{background:#E6EAF2}
+  .footer{margin-top:16px;padding-top:10px;border-top:1px solid #E8ECF2;display:flex;justify-content:space-between;font-size:10px;color:#8A96AA}
+  .badge-count{background:#1C2E4A;color:#fff;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700}
+  @media print{
+    .no-print{display:none}
+    body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  }
+</style>
+</head><body>
+<div class="no-print" style="padding:12px;background:#E6EAF2;margin-bottom:16px;display:flex;gap:10px;align-items:center">
+  <button onclick="window.print()" style="padding:8px 20px;background:#1C2E4A;color:#fff;border:none;border-radius:6px;font-size:13px;cursor:pointer;font-weight:600">🖨 Imprimir / Salvar PDF</button>
+  <span style="font-size:13px;color:#4A5568">Para salvar como PDF: escolha "Salvar como PDF" na impressora</span>
+</div>
+<div class="header">
+  <div class="header-left">
+    <div class="header-logo">Wilquer Bosque</div>
+    <div class="header-sub">Advogado — Sistema de Gestão Jurídica</div>
+  </div>
+  <div class="header-right">
+    <div class="rel-titulo">Relatório de Prazos em Aberto</div>
+    <div class="rel-periodo">Período: \${fmtDate(ini)} a \${fmtDate(fim)}</div>
+    <div class="rel-filtros">Filtros: \${filtrosDesc}</div>
+    <div class="rel-gerado">Gerado em: \${fmtDate(today())} · <span class="badge-count">\${lista.length} prazo(s)</span></div>
+  </div>
+</div>
+<table>
+  <thead><tr>
+    <th>Prazo Fatal</th><th>Tipo de Prazo</th><th>Nº Processo</th>
+    <th>Parte Autora</th><th>Parte Ré</th><th>Tribunal</th>
+    <th>Órgão Julgador</th><th>Dias</th><th>Elaboração</th>
+  </tr></thead>
+  <tbody>\${linhas}</tbody>
+</table>
+<div class="footer">
+  <span>Wilquer Bosque Advogado — Documento gerado automaticamente pelo sistema de gestão</span>
+  <span>Total: \${lista.length} prazo(s) em aberto no período</span>
+</div>
+</body></html>`);
+  w.document.close();
+}
+
+// ── Init com Firebase ──────────────────────────────────────────────
+function renderAll(){
+  renderDashboard();renderProcessos();renderPrazos();
+  renderSuspensoes();renderPrazosHoje();popularFiltrosTribunal();
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape')['proc','prazo','detail','susp'].forEach(m=>closeModal(m));
+});
+
+// Mostrar loading enquanto Firebase inicializa
+document.addEventListener('DOMContentLoaded', async function(){
+  // Mostrar tela de carregamento
+  document.body.innerHTML += `<div id="fb-loading" style="position:fixed;inset:0;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:16px">
+    <div style="font-size:32px">⚖</div>
+    <div style="font-size:14px;color:#4A5568;font-family:sans-serif">Carregando sistema...</div>
+  </div>`;
+
+  try{
+    const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
+    const { getAuth, onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js');
+    const { getFirestore } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCQpFaqdLnOSDkgTpFu9aBbs9xRpgDwamc",
+      authDomain: "sistema-juridico-349e4.firebaseapp.com",
+      projectId: "sistema-juridico-349e4",
+      storageBucket: "sistema-juridico-349e4.firebasestorage.app",
+      messagingSenderId: "1021665744350",
+      appId: "1:1021665744350:web:c7cb34a33adf9c2853794f"
+    };
+
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    _db = getFirestore(app);
+
+    onAuthStateChanged(auth, async user => {
+      const loader = document.getElementById('fb-loading');
+      if(!user){
+        window.location.href = 'index.html';
+        return;
+      }
+      _currentUser = user;
+      // Exibir nome
+      const nomes = {
+        'wilquerb@gmail.com':'Wilquer Bosque',
+        'juridicovivianfranca@gmail.com':'Vivian França'
+      };
+      const el = document.getElementById('user-name');
+      if(el) el.textContent = nomes[user.email] || user.email;
+
+      // Carregar dados do Firestore
+      await loadFromFirestore(user.uid);
+      if(loader) loader.remove();
+      buildTipoPrazoSelect('fp-tipo');
+      renderAll();
+    });
+  } catch(e){
+    console.error('Erro Firebase:', e);
+    const loader = document.getElementById('fb-loading');
+    if(loader) loader.innerHTML = '<div style="color:red;font-family:sans-serif;padding:20px;text-align:center">Erro ao conectar. Verifique sua internet e recarregue a página.</div>';
+  }
+});
+
 </script>
 </body>
 </html>
