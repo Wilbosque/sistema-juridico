@@ -4,9 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Wilquer Bosque — Gestão de Processos</title>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <style>
 :root{--bg:#F4F5F7;--sur:#fff;--sur2:#EEF0F4;--bdr:#D6DAE3;--txt:#1A1E2E;--txt2:#4A5568;--txt3:#8A96AA;--ac:#1C2E4A;--acl:#E6EAF2;--acd:#0D1B2E;--gr:#2D6A4F;--grl:#EAF4EE;--am:#92560A;--aml:#FEF3E2;--rd:#8B2020;--rdl:#FDEAEA;--pu:#3A4A8A;--pul:#ECEEF8;--tl:#0D6B5E;--tll:#E6F5F2;--r:8px;--rl:12px}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -156,12 +153,7 @@ tr:hover td{background:#FAFAF8}
       <div class="psub" id="pgsub">Visão geral</div>
     </div>
     <div style="display:flex;align-items:center;gap:12px">
-      <div style="text-align:right">
-        <div style="font-size:12px;font-weight:600;color:var(--ac)" id="uname"></div>
-        <div style="font-size:11px;color:var(--txt3)">Advogado(a)</div>
-      </div>
       <button class="btn btn-p" id="btntop" onclick="openAddModal(null)">+ Novo processo</button>
-      <button class="btn btn-sm btn-d" onclick="doLogout()" style="padding:7px 12px">⏻ Sair</button>
     </div>
   </div>
   <div class="content">
@@ -374,62 +366,41 @@ tr:hover td{background:#FAFAF8}
 
 <script>
 // ================================================================
-// FIREBASE
+// STORAGE (localStorage)
 // ================================================================
-var _db = null, _uid = null;
+var KP='jg_proc', KZ='jg_prazos', KS='jg_susp';
+
+function carregar() {
+  try { processos  = JSON.parse(localStorage.getItem(KP) || '[]'); } catch(e){ processos=[]; }
+  try { prazos     = JSON.parse(localStorage.getItem(KZ) || '[]'); } catch(e){ prazos=[]; }
+  try { suspensoes = JSON.parse(localStorage.getItem(KS) || '[]'); } catch(e){ suspensoes=[]; }
+}
+
+function salvar() {
+  try {
+    localStorage.setItem(KP, JSON.stringify(processos));
+    localStorage.setItem(KZ, JSON.stringify(prazos));
+    localStorage.setItem(KS, JSON.stringify(suspensoes));
+  } catch(e) { toast('Erro ao salvar dados','er'); }
+}
+
 var processos = [], prazos = [], suspensoes = [];
 var _editP = null, _editS = null;
 
-firebase.initializeApp({
-  apiKey:"AIzaSyCQpFaqdLnOSDkgTpFu9aBbs9xRpgDwamc",
-  authDomain:"sistema-juridico-349e4.firebaseapp.com",
-  projectId:"sistema-juridico-349e4",
-  storageBucket:"sistema-juridico-349e4.firebasestorage.app",
-  messagingSenderId:"1021665744350",
-  appId:"1:1021665744350:web:c7cb34a33adf9c2853794f"
-});
-
-firebase.auth().onAuthStateChanged(function(user) {
-  if (!user) { window.location.href = 'index.html'; return; }
-  _uid = user.uid;
-  _db  = firebase.firestore();
-  var nomes = {'wilquerb@gmail.com':'Wilquer Bosque','juridicovivianfranca@gmail.com':'Vivian França'};
-  document.getElementById('uname').textContent = nomes[user.email] || user.email;
-  _db.collection('dados').doc(_uid).get()
-    .then(function(snap) {
-      if (snap.exists) {
-        var d = snap.data();
-        try { processos  = JSON.parse(d.processos  || '[]'); } catch(e){ processos=[]; }
-        try { prazos     = JSON.parse(d.prazos     || '[]'); } catch(e){ prazos=[]; }
-        try { suspensoes = JSON.parse(d.suspensoes || '[]'); } catch(e){ suspensoes=[]; }
-      }
-      iniciar();
-    })
-    .catch(function(e) { console.error(e); iniciar(); });
-});
-
-function salvar() {
-  if (!_db || !_uid) { toast('Sem conexão com o banco de dados','er'); return; }
-  _db.collection('dados').doc(_uid).set({
-    processos:  JSON.stringify(processos),
-    prazos:     JSON.stringify(prazos),
-    suspensoes: JSON.stringify(suspensoes),
-    ts: new Date().toISOString()
-  }).catch(function(e) { console.error('Erro Firestore:', e); toast('Erro ao salvar','er'); });
-}
-
 function doLogout() {
-  if (confirm('Deseja sair?')) {
-    firebase.auth().signOut().then(function() { window.location.href = 'index.html'; });
-  }
+  if (confirm('Deseja sair?')) { window.location.href = 'index.html'; }
 }
 
 function iniciar() {
+  carregar();
   document.getElementById('ls').style.display = 'none';
   document.getElementById('app').style.display = 'flex';
   buildTipos();
   renderAll();
 }
+
+// Iniciar direto sem autenticação
+window.addEventListener('DOMContentLoaded', function() { iniciar(); });
 
 // ================================================================
 // HELPERS
