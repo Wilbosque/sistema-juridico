@@ -1,0 +1,1387 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wilquer Bosque — Gestão de Processos</title>
+<style>
+:root{--bg:#F4F5F7;--sur:#fff;--sur2:#EEF0F4;--bdr:#D6DAE3;--txt:#1A1E2E;--txt2:#4A5568;--txt3:#8A96AA;--ac:#1C2E4A;--acl:#E6EAF2;--acd:#0D1B2E;--gr:#2D6A4F;--grl:#EAF4EE;--am:#92560A;--aml:#FEF3E2;--rd:#8B2020;--rdl:#FDEAEA;--pu:#3A4A8A;--pul:#ECEEF8;--tl:#0D6B5E;--tll:#E6F5F2;--r:8px;--rl:12px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);font-size:14px;line-height:1.6;min-height:100vh}
+.app{display:flex;min-height:100vh}
+.sidebar{width:230px;background:var(--sur);border-right:1px solid var(--bdr);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:10;overflow-y:auto}
+.main{margin-left:230px;flex:1}
+.topbar{background:var(--sur);border-bottom:2px solid var(--acl);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:5}
+.content{padding:24px;max-width:1200px}
+.brand{padding:16px;border-bottom:1px solid var(--bdr);text-align:center}
+.brand img{width:160px;height:auto;display:block;margin:0 auto}
+.nav{padding:10px 8px;flex:1}
+.ns{font-size:10px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.08em;padding:10px 10px 4px}
+.ni{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--r);cursor:pointer;color:var(--txt2);font-size:13px;font-weight:500;border:none;background:none;width:100%;text-align:left;transition:all .15s}
+.ni:hover{background:var(--sur2);color:var(--txt)}.ni.active{background:var(--acl);color:var(--acd)}
+.nb{margin-left:auto;background:var(--rd);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;min-width:18px;text-align:center}
+.sfooter{padding:10px 8px;border-top:1px solid var(--bdr);display:flex;gap:6px}
+.ptitle{font-size:18px;font-weight:700;color:var(--ac)}.psub{font-size:12px;color:var(--txt3);margin-top:2px}
+.stitle{font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:24px}
+.metric{background:var(--sur);border:1px solid var(--bdr);border-radius:var(--rl);padding:16px}
+.mv{font-size:28px;font-weight:700;line-height:1;margin-bottom:4px}
+.mv.ca{color:var(--ac)}.mv.cam{color:var(--am)}.mv.cgr{color:var(--gr)}.mv.crd{color:var(--rd)}
+.ml{font-size:12px;color:var(--txt3);font-weight:500}.ms{font-size:11px;color:var(--txt3);margin-top:2px}
+.bdg{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
+.bt{background:var(--acl);color:var(--acd)}.bc{background:var(--pul);color:var(--pu)}.bco{background:var(--tll);color:var(--tl)}
+.bo{background:var(--aml);color:var(--am)}.bd{background:var(--grl);color:var(--gr)}.bl{background:var(--rdl);color:var(--rd)}
+.bau{background:var(--acl);color:var(--acd)}.bre{background:var(--pul);color:var(--pu)}.bn{background:var(--sur2);color:var(--txt2)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--r);border:1px solid var(--bdr);background:var(--sur);color:var(--txt);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:all .15s}
+.btn:hover{background:var(--sur2)}
+.btnp{background:var(--ac);color:#fff;border-color:var(--ac)}.btnp:hover{background:var(--acd)}
+.btnd{color:var(--rd);border-color:#F5C0C0}.btnd:hover{background:var(--rdl)}
+.btng{color:var(--gr);border-color:#B5D9C5}.btng:hover{background:var(--grl)}
+.btnsm{padding:4px 10px;font-size:12px}.btnic{padding:6px;width:30px;height:30px;justify-content:center}
+.tc{background:var(--sur);border:1px solid var(--bdr);border-radius:var(--rl);overflow:hidden}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{padding:9px 13px;text-align:left;font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--bdr);background:var(--sur2);white-space:nowrap}
+td{padding:10px 13px;border-bottom:1px solid var(--bdr);font-size:13px;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#FAFAF8}
+.mono{font-family:Consolas,monospace;font-size:12px;color:var(--txt2)}
+.es{text-align:center;padding:40px 20px}
+.frow{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.frow input,.frow select{padding:7px 11px;border:1px solid var(--bdr);border-radius:var(--r);font-size:13px;background:var(--sur);color:var(--txt);font-family:inherit}
+.frow input:focus,.frow select:focus{outline:none;border-color:var(--ac)}
+.fsi{flex:1;min-width:180px}
+.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;align-items:flex-start;justify-content:center;padding:32px 16px;overflow-y:auto}
+.ov.open{display:flex}
+.modal{background:var(--sur);border-radius:var(--rl);border:1px solid var(--bdr);width:min(700px,100%);box-shadow:0 8px 32px rgba(0,0,0,.12)}
+.mh{padding:16px 20px 12px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between}
+.mt{font-size:15px;font-weight:600}.mb{padding:20px}.mf{padding:12px 20px;border-top:1px solid var(--bdr);display:flex;justify-content:flex-end;gap:8px}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.fc{grid-column:1/-1}
+.fg{display:flex;flex-direction:column;gap:4px}
+.fg label{font-size:12px;font-weight:600;color:var(--txt2)}
+.fg input,.fg select,.fg textarea{padding:8px 11px;border:1px solid var(--bdr);border-radius:var(--r);font-size:13px;background:var(--sur);color:var(--txt);font-family:inherit;transition:border .15s}
+.fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--ac)}
+.fg input.er,.fg select.er{border-color:var(--rd)}
+.fh{font-size:11px;color:var(--txt3);margin-top:1px}
+.fe{font-size:11px;color:var(--rd);margin-top:1px;display:none}.fe.on{display:block}
+.chk{display:flex;align-items:center;gap:8px;padding:8px 11px;border:1px solid var(--bdr);border-radius:var(--r);cursor:pointer}
+.chk:hover{background:var(--sur2)}
+.chk input{width:15px;height:15px;accent-color:var(--ac);cursor:pointer;flex-shrink:0}
+.chk label{font-size:13px;cursor:pointer;font-weight:400}
+.oba{width:100%;min-height:110px;resize:vertical;font-family:Consolas,monospace;font-size:13px;line-height:1.6;padding:9px 11px;border:1px solid var(--bdr);border-radius:var(--r);background:var(--sur);color:var(--txt)}
+.oba:focus{outline:none;border-color:var(--ac)}
+.cg{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}
+.cc{background:var(--sur);border:1px solid var(--bdr);border-radius:var(--rl);padding:16px}
+.br{display:flex;align-items:center;gap:10px;margin-bottom:7px}
+.brl{min-width:90px;font-size:12px;color:var(--txt2)}
+.brb{flex:1;height:7px;background:var(--sur2);border-radius:4px;overflow:hidden}
+.brf{height:100%;border-radius:4px}
+.brn{min-width:22px;text-align:right;font-size:12px;color:var(--txt3)}
+.pi{display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid var(--bdr);cursor:pointer}
+.pi:last-child{border-bottom:none}.pi:hover{background:#FAFAF8}
+.pi.late{border-left:3px solid var(--rd)}.pi.today{border-left:3px solid var(--am)}.pi.soon{border-left:3px solid var(--ac)}
+.pif{flex:1}.pit{font-size:13px;font-weight:600}.pip{font-size:11px;color:var(--txt3);margin-top:2px;font-family:monospace}
+.pid{text-align:right;font-size:12px}.pidv{font-weight:600}.pids{font-size:11px;color:var(--txt3);margin-top:1px}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--txt);color:#fff;padding:9px 16px;border-radius:var(--r);font-size:13px;font-weight:500;box-shadow:0 4px 16px rgba(0,0,0,.15);z-index:999;transform:translateY(60px);opacity:0;transition:all .25s;pointer-events:none}
+.toast.on{transform:translateY(0);opacity:1}.toast.ok{background:var(--gr)}.toast.er{background:var(--rd)}
+.dg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.dl{font-size:11px;color:var(--txt3);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px}
+.dv{font-size:13px}
+.sep{border:none;border-top:1px solid var(--bdr);margin:16px 0}
+.cbox{background:var(--acl);border:1px solid #B8CDE8;border-radius:var(--rl);padding:16px;margin-bottom:16px}
+.ctit{font-size:13px;font-weight:600;color:var(--acd);margin-bottom:12px}
+.cg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;align-items:end}
+.cres{background:var(--sur);border:1px solid var(--bdr);border-radius:var(--r);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+.crl{font-size:12px;color:var(--txt2)}.crv{font-size:15px;font-weight:700;color:var(--acd)}
+.si{background:var(--sur);border:1px solid var(--bdr);border-radius:var(--r);padding:12px 14px;margin-bottom:8px;display:flex;align-items:flex-start;gap:12px}
+.sdot{width:10px;height:10px;border-radius:50%;margin-top:4px;flex-shrink:0}
+.sinf{flex:1}.stit2{font-size:13px;font-weight:600}.sper{font-size:12px;color:var(--txt2);margin-top:2px}
+.stri{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:6px;max-height:200px;overflow-y:auto;padding:8px;border:1px solid var(--bdr);border-radius:var(--r)}
+.ti{display:flex;align-items:center;gap:6px;padding:4px 6px;border-radius:6px;cursor:pointer}
+.ti:hover{background:var(--sur2)}
+.ti input{width:13px;height:13px;accent-color:var(--ac);cursor:pointer}
+.ti label{font-size:12px;cursor:pointer}
+.ainfo{background:var(--acl);color:var(--acd);border:1px solid #B8CDE8;padding:10px 14px;border-radius:var(--r);font-size:13px;margin-bottom:16px}
+.tbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand"><img id="logo-img" alt="Wilquer Bosque Advogado"></div>
+  <nav class="nav">
+    <div class="ns">Principal</div>
+    <button class="ni active" onclick="pg('dashboard',this)">📊 Dashboard</button>
+    <button class="ni" onclick="pg('processos',this)">📁 Processos <span class="nb" id="nb-p" style="display:none"></span></button>
+    <button class="ni" onclick="pg('prazos',this)">⏰ Prazos <span class="nb" id="nb-z" style="display:none"></span></button>
+    <button class="ni" onclick="pg('relatorios',this)">📄 Relatórios</button>
+    <button class="ni" onclick="pg('audiencias',this)">⚖️ Audiências <span class="nb" id="nb-a" style="display:none"></span></button>
+    <div class="ns">Config</div>
+    <button class="ni" onclick="pg('suspensoes',this)">📅 Suspensões</button>
+  </nav>
+  <div class="sfooter">
+    <button class="btn btnsm" onclick="expData()" style="flex:1;justify-content:center">⬇ Exportar</button>
+    <button class="btn btnsm" onclick="document.getElementById('fimp').click()" style="flex:1;justify-content:center">⬆ Importar</button>
+    <input type="file" id="fimp" accept=".json" style="display:none" onchange="impData(event)">
+  </div>
+</aside>
+<div class="main">
+  <div class="topbar">
+    <div><div class="ptitle" id="pgtit">Dashboard</div><div class="psub" id="pgsub">Visão geral</div></div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="text-align:right">
+        <div style="font-size:12px;font-weight:600;color:var(--ac)" id="uname"></div>
+        <div style="font-size:11px;color:var(--txt3)">Advogado(a)</div>
+      </div>
+      <button class="btn btnp" id="btntop" onclick="novoProcesso()">+ Novo processo</button>
+      <button class="btn btnsm btnd" onclick="doLogout()" style="padding:7px 12px">⏻ Sair</button>
+    </div>
+  </div>
+  <div class="content">
+
+    <div id="pg-dashboard">
+      <div class="metrics" id="mets"></div>
+      <div id="dia-wrap" style="margin-bottom:24px"></div>
+      <div class="cg">
+        <div class="cc"><div class="stitle">Por tipo de ação</div><div id="ch-t"></div></div>
+        <div class="cc"><div class="stitle">Status dos prazos</div><div id="ch-p"></div></div>
+      </div>
+      <div class="stitle">Próximos vencimentos</div>
+      <div class="tc" id="prox"></div>
+    </div>
+
+    <div id="pg-processos" style="display:none">
+      <div class="frow">
+        <input type="text" class="fsi" placeholder="Buscar..." id="sp" oninput="renderP()">
+        <select id="fpt" onchange="renderP()"><option value="">Todos os tipos</option><option>Trabalhista</option><option>Cível</option><option>Consumidor</option></select>
+        <select id="fpl" onchange="renderP()"><option value="">Qualquer lado</option><option value="autor">Adv. Autor</option><option value="reu">Adv. Réu</option></select>
+        <select id="fptr" onchange="renderP()"><option value="">Todos os tribunais</option></select>
+      </div>
+      <div class="tc"><div class="tw"><table>
+        <thead><tr><th>Nº CNJ</th><th>Tipo</th><th>Parte Autora</th><th>Parte Ré</th><th>Tribunal</th><th>Repr.</th><th>Próx. prazo</th><th>Ações</th></tr></thead>
+        <tbody id="ptb"></tbody>
+      </table></div></div>
+    </div>
+
+    <div id="pg-prazos" style="display:none">
+      <div class="frow">
+        <select id="fzs" onchange="renderZ()"><option value="">Todos os status</option><option>Em aberto</option><option>Cumprido</option></select>
+        <select id="fzp" onchange="renderZ()"><option value="">Todos os processos</option></select>
+        <select id="fztp" onchange="renderZ()"><option value="">Todos os tipos</option><option>Trabalhista</option><option>Cível</option><option>Consumidor</option></select>
+      </div>
+      <div class="tc"><div class="tw"><table>
+        <thead><tr><th>Processo</th><th>Autor</th><th>Tipo de Prazo</th><th>Dias</th><th>Elaboração</th><th>Prazo Fatal</th><th>Valor</th><th>Status</th><th>Ações</th></tr></thead>
+        <tbody id="ztb"></tbody>
+      </table></div></div>
+    </div>
+
+    <div id="pg-relatorios" style="display:none">
+      <div class="ainfo">📄 Selecione o período para gerar um relatório PDF com todos os prazos em aberto.</div>
+      <div class="tc" style="padding:24px;margin-bottom:20px">
+        <div class="fg2" style="max-width:600px">
+          <div class="fg"><label>Data inicial *</label><input type="date" id="ri"></div>
+          <div class="fg"><label>Data final *</label><input type="date" id="rf"></div>
+          <div class="fg fc"><label>Tribunal (opcional)</label><select id="rtr"><option value="">Todos</option></select></div>
+          <div class="fg fc"><label>Tipo de ação (opcional)</label><select id="rta"><option value="">Todos</option><option>Trabalhista</option><option>Cível</option><option>Consumidor</option></select></div>
+        </div>
+        <div style="margin-top:16px;display:flex;gap:10px;align-items:center">
+          <button class="btn btnp" onclick="gerarPDF()">🖨 Gerar PDF</button>
+          <button class="btn" onclick="prevRel()">👁 Pré-visualizar</button>
+          <span id="rcount" style="font-size:13px;color:var(--txt3)"></span>
+        </div>
+      </div>
+      <div id="rprev" style="display:none">
+        <div class="stitle">Pré-visualização</div>
+        <div class="tc"><div class="tw" id="rprevc"></div></div>
+      </div>
+    </div>
+
+    <div id="pg-audiencias" style="display:none">
+      <div class="ainfo">⚖️ Pauta de audiências. Cadastre audiências vinculadas a processos e consulte por período.</div>
+      <div class="tbar">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <input type="date" id="aud-fi" oninput="renderAud()" placeholder="De" title="Data inicial">
+          <input type="date" id="aud-ff" oninput="renderAud()" placeholder="Até" title="Data final">
+          <select id="aud-fp" onchange="renderAud()"><option value="">Todos os processos</option></select>
+          <button class="btn btnsm" onclick="limparFiltroAud()">✕ Limpar</button>
+        </div>
+        <button class="btn btnp" onclick="abrirAud()">+ Nova audiência</button>
+      </div>
+      <div class="tc"><div class="tw">
+        <table>
+          <thead><tr><th>Data / Hora</th><th>Processo</th><th>Parte Contrária</th><th>Tipo</th><th>Local / Sala</th><th>Status</th><th>Ações</th></tr></thead>
+          <tbody id="audtb"></tbody>
+        </table>
+      </div></div>
+    </div>
+
+    <div id="pg-suspensoes" style="display:none">
+      <div class="ainfo">📌 Cadastre períodos de suspensão por tribunal. O cálculo de prazo descontará automaticamente os dias suspensos.</div>
+      <div class="tbar">
+        <div class="stitle" style="margin:0">Suspensões cadastradas</div>
+        <button class="btn btnp" onclick="abrirSusp()">+ Nova suspensão</button>
+      </div>
+      <div id="slist"></div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- MODAL PROCESSO -->
+<div class="ov" id="ov-proc">
+<div class="modal">
+  <div class="mh"><div class="mt" id="mt-proc">Novo processo</div><button class="btn btnic" onclick="fecharOv('proc')">✕</button></div>
+  <div class="mb"><div class="fg2">
+    <div class="fg"><label>Tipo da ação *</label>
+      <select id="p-tipo"><option value="">Selecione</option><option>Trabalhista</option><option>Cível</option><option>Consumidor</option></select>
+      <span class="fe" id="e-tipo">Obrigatório</span></div>
+    <div class="fg"><label>Rito</label><input type="text" id="p-rito" placeholder="Ordinário, Sumaríssimo..."></div>
+    <div class="fg fc"><label>Número do processo (CNJ) *</label>
+      <input type="text" id="p-num" placeholder="0000000-00.0000.0.00.0000" oninput="mCNJ(this)" maxlength="25">
+      <span class="fh">Formato: NNNNNNN-DD.AAAA.J.TT.OOOO</span>
+      <span class="fe" id="e-num">Número inválido</span></div>
+    <div class="fg"><label>Parte autora / reclamante *</label>
+      <input type="text" id="p-autor" placeholder="Nome completo">
+      <span class="fe" id="e-autor">Obrigatório</span></div>
+    <div class="fg" style="justify-content:flex-end">
+      <label style="visibility:hidden;font-size:12px">_</label>
+      <div class="chk"><input type="checkbox" id="p-adva"><label for="p-adva">Somos advogados do autor</label></div></div>
+    <div class="fg"><label>Parte ré / reclamada *</label>
+      <input type="text" id="p-reu" placeholder="Nome completo">
+      <span class="fe" id="e-reu">Obrigatório</span></div>
+    <div class="fg" style="justify-content:flex-end">
+      <label style="visibility:hidden;font-size:12px">_</label>
+      <div class="chk"><input type="checkbox" id="p-advr"><label for="p-advr">Somos advogados do réu</label></div></div>
+    <div class="fg"><label>Tribunal *</label>
+      <select id="p-trib">
+        <option value="">Selecione</option>
+        <optgroup label="Estaduais"><option>TJAC</option><option>TJAL</option><option>TJAM</option><option>TJAP</option><option>TJBA</option><option>TJCE</option><option>TJDF</option><option>TJES</option><option>TJGO</option><option>TJMA</option><option>TJMG</option><option>TJMS</option><option>TJMT</option><option>TJPA</option><option>TJPB</option><option>TJPE</option><option>TJPI</option><option>TJPR</option><option>TJRJ</option><option>TJRN</option><option>TJRO</option><option>TJRR</option><option>TJRS</option><option>TJSC</option><option>TJSE</option><option>TJSP</option><option>TJTO</option></optgroup>
+        <optgroup label="Trabalho"><option>TRT1</option><option>TRT2</option><option>TRT3</option><option>TRT4</option><option>TRT5</option><option>TRT6</option><option>TRT7</option><option>TRT8</option><option>TRT9</option><option>TRT10</option><option>TRT11</option><option>TRT12</option><option>TRT13</option><option>TRT14</option><option>TRT15</option><option>TRT16</option><option>TRT17</option><option>TRT18</option><option>TRT19</option><option>TRT20</option><option>TRT21</option><option>TRT22</option><option>TRT23</option><option>TRT24</option></optgroup>
+        <optgroup label="Federais"><option>TRF1</option><option>TRF2</option><option>TRF3</option><option>TRF4</option><option>TRF5</option><option>TRF6</option></optgroup>
+        <optgroup label="Superiores"><option>STJ</option><option>STF</option><option>TST</option><option>TSE</option><option>STM</option></optgroup>
+      </select>
+      <span class="fe" id="e-trib">Obrigatório</span></div>
+    <div class="fg"><label>Comarca</label><input type="text" id="p-comarca" placeholder="Salvador, Feira..."></div>
+    <div class="fg fc"><label>Órgão julgador *</label>
+      <input type="text" id="p-orgao" placeholder="1ª Vara Cível de...">
+      <span class="fe" id="e-orgao">Obrigatório</span></div>
+    <div class="fg fc"><label>Valor da causa (R$)</label><input type="text" id="p-valor" placeholder="0,00" oninput="mMoney(this)"></div>
+    <div class="fg fc"><label>Observações</label><textarea class="oba" id="p-obs" placeholder="Anotações livres..."></textarea></div>
+    <div class="fg fc" style="border-top:1px solid var(--bdr);padding-top:14px;margin-top:4px">
+      <div style="font-size:12px;font-weight:700;color:var(--ac);margin-bottom:10px">⚖️ Audiência designada (opcional)</div>
+      <div class="fg2">
+        <div class="fg"><label>Data da audiência</label><input type="date" id="p-aud-data"></div>
+        <div class="fg"><label>Horário</label><input type="time" id="p-aud-hora"></div>
+        <div class="fg"><label>Tipo de audiência</label>
+          <select id="p-aud-tipo">
+            <option value="">Não designada</option>
+            <option>Audiência de Conciliação</option>
+            <option>Audiência de Instrução</option>
+            <option>Audiência Una</option>
+            <option>Audiência de Julgamento</option>
+            <option>Audiência Preliminar</option>
+            <option>Audiência de Mediação</option>
+            <option>Sessão de Julgamento</option>
+            <option>Outra</option>
+          </select></div>
+        <div class="fg"><label>Local / Sala</label><input type="text" id="p-aud-local" placeholder="Ex: 1ª Vara, Sala 3..."></div>
+      </div>
+    </div>
+  </div></div>
+  <div class="mf"><button class="btn" onclick="fecharOv('proc')">Cancelar</button><button class="btn btnp" onclick="salvarProc()">Salvar processo</button></div>
+</div>
+</div>
+
+<!-- MODAL PRAZO -->
+<div class="ov" id="ov-prazo">
+<div class="modal">
+  <div class="mh"><div class="mt">Adicionar prazo</div><button class="btn btnic" onclick="fecharOv('prazo')">✕</button></div>
+  <div class="mb">
+    <div class="cbox">
+      <div class="ctit">⚡ Calcular prazo fatal automaticamente</div>
+      <div class="cg3">
+        <div class="fg"><label>Data da intimação</label><input type="date" id="ci" onchange="calcP()"></div>
+        <div class="fg"><label>Tribunal</label>
+          <select id="ctrib" onchange="calcP()">
+            <option value="">Selecione</option>
+            <option value="TJBA-1G">TJBA 1º Grau</option><option value="TJBA-2G">TJBA 2º Grau</option>
+            <optgroup label="Estaduais"><option value="TJAC">TJAC</option><option value="TJAL">TJAL</option><option value="TJAM">TJAM</option><option value="TJAP">TJAP</option><option value="TJBA">TJBA</option><option value="TJCE">TJCE</option><option value="TJDF">TJDF</option><option value="TJES">TJES</option><option value="TJGO">TJGO</option><option value="TJMA">TJMA</option><option value="TJMG">TJMG</option><option value="TJMS">TJMS</option><option value="TJMT">TJMT</option><option value="TJPA">TJPA</option><option value="TJPB">TJPB</option><option value="TJPE">TJPE</option><option value="TJPI">TJPI</option><option value="TJPR">TJPR</option><option value="TJRJ">TJRJ</option><option value="TJRN">TJRN</option><option value="TJRO">TJRO</option><option value="TJRR">TJRR</option><option value="TJRS">TJRS</option><option value="TJSC">TJSC</option><option value="TJSE">TJSE</option><option value="TJSP">TJSP</option><option value="TJTO">TJTO</option></optgroup>
+            <optgroup label="Trabalho"><option value="TRT1">TRT1</option><option value="TRT2">TRT2</option><option value="TRT3">TRT3</option><option value="TRT4">TRT4</option><option value="TRT5">TRT5</option><option value="TRT6">TRT6</option><option value="TRT7">TRT7</option><option value="TRT8">TRT8</option><option value="TRT9">TRT9</option><option value="TRT10">TRT10</option><option value="TRT11">TRT11</option><option value="TRT12">TRT12</option><option value="TRT13">TRT13</option><option value="TRT14">TRT14</option><option value="TRT15">TRT15</option><option value="TRT16">TRT16</option><option value="TRT17">TRT17</option><option value="TRT18">TRT18</option><option value="TRT19">TRT19</option><option value="TRT20">TRT20</option><option value="TRT21">TRT21</option><option value="TRT22">TRT22</option><option value="TRT23">TRT23</option><option value="TRT24">TRT24</option></optgroup>
+            <optgroup label="Federais"><option value="TRF1">TRF1</option><option value="TRF2">TRF2</option><option value="TRF3">TRF3</option><option value="TRF4">TRF4</option><option value="TRF5">TRF5</option><option value="TRF6">TRF6</option></optgroup>
+            <optgroup label="Superiores"><option value="STJ">STJ</option><option value="STF">STF</option><option value="TST">TST</option><option value="TSE">TSE</option><option value="STM">STM</option></optgroup>
+            <option value="outro">Outro</option>
+          </select></div>
+        <div class="fg"><label>Dias úteis <span id="chint" style="font-weight:400;color:var(--txt3)"></span></label>
+          <input type="number" id="cdias" min="1" max="15" placeholder="1-15" oninput="calcP()"></div>
+      </div>
+      <div class="cres" id="cres" style="display:none">
+        <div><div class="crl">Prazo fatal calculado</div><div class="crv" id="cval"></div></div>
+        <button class="btn btnsm btnp" onclick="usarP()">Usar ↗</button>
+      </div>
+    </div>
+    <div class="fg2">
+      <div class="fg fc"><label>Processo</label><input type="text" id="zpl" readonly style="background:var(--sur2)"><input type="hidden" id="zpid"></div>
+      <div class="fg fc"><label>Tipo de prazo *</label>
+        <select id="ztipo" onchange="onTipo()"><option value="">Selecione</option></select>
+        <span class="fe" id="e-ztipo">Obrigatório</span></div>
+      <div class="fg"><label>Qtd. dias úteis *<span id="zhint" style="font-weight:400;color:var(--txt3);font-size:11px;margin-left:4px"></span></label>
+        <input type="number" id="zdias" min="1" max="15" placeholder="Informe">
+        <span class="fh" id="zdinfo"></span>
+        <span class="fe" id="e-zdias">Obrigatório</span></div>
+      <div class="fg"><label>Data de elaboração</label>
+        <input type="date" id="zelab" onchange="vElab()">
+        <span class="fe" id="e-zelab">Não pode ser posterior ao prazo fatal</span></div>
+      <div class="fg fc"><label>Prazo fatal *</label>
+        <input type="date" id="zfatal" onchange="vElab()">
+        <span class="fe" id="e-zfatal">Obrigatório</span></div>
+      <div class="fg fc"><label>Observações</label><textarea class="oba" id="zobs" rows="3" placeholder="Observações..."></textarea></div>
+    </div>
+  </div>
+  <div class="mf"><button class="btn" onclick="fecharOv('prazo')">Cancelar</button><button class="btn btnp" onclick="salvarPrazo()">Salvar prazo</button></div>
+</div>
+</div>
+
+<!-- MODAL DETALHE -->
+<div class="ov" id="ov-det">
+<div class="modal" style="max-width:740px">
+  <div class="mh">
+    <div><div class="mt" id="det-tit"></div><div style="font-size:12px;color:var(--txt3);margin-top:2px" id="det-sub"></div></div>
+    <div style="display:flex;gap:8px"><button class="btn btnsm" id="det-ed">✏ Editar</button><button class="btn btnic" onclick="fecharOv('det')">✕</button></div>
+  </div>
+  <div class="mb" id="det-body"></div>
+  <div class="mf"><button class="btn" onclick="fecharOv('det')">Fechar</button><button class="btn btnp" id="det-pz">+ Adicionar prazo</button></div>
+</div>
+</div>
+
+<!-- MODAL SUSPENSÃO -->
+<div class="ov" id="ov-susp">
+<div class="modal" style="max-width:600px">
+  <div class="mh"><div class="mt" id="mt-susp">Nova suspensão</div><button class="btn btnic" onclick="fecharOv('susp')">✕</button></div>
+  <div class="mb"><div class="fg2">
+    <div class="fg fc"><label>Descrição *</label><input type="text" id="s-desc" placeholder="Ex: Decreto Judiciário nº 752"><span class="fe" id="e-sdesc">Obrigatório</span></div>
+    <div class="fg"><label>Data início *</label><input type="date" id="s-ini"><span class="fe" id="e-sini">Obrigatório</span></div>
+    <div class="fg"><label>Data término *</label><input type="date" id="s-fim"><span class="fe" id="e-sfim">Obrigatório</span></div>
+    <div class="fg fc">
+      <label>Tribunais *</label>
+      <div style="display:flex;gap:8px;margin-bottom:6px;flex-wrap:wrap">
+        <button class="btn btnsm" type="button" onclick="selA()">Todos</button>
+        <button class="btn btnsm" type="button" onclick="selN()">Nenhum</button>
+        <button class="btn btnsm" type="button" onclick="selTJ()">Só TJBA</button>
+      </div>
+      <div class="tgrid" id="tgr"></div>
+      <span class="fe" id="e-stri">Selecione ao menos um</span>
+    </div>
+    <div class="fg fc"><label>Observações</label><input type="text" id="s-obs" placeholder="(opcional)"></div>
+  </div></div>
+  <div class="mf"><button class="btn" onclick="fecharOv('susp')">Cancelar</button><button class="btn btnp" onclick="salvarSusp()">Salvar</button></div>
+</div>
+</div>
+
+<div class="toast" id="tst"></div>
+
+<!-- MODAL AUDIÊNCIA -->
+<div class="ov" id="ov-aud">
+<div class="modal" style="max-width:600px">
+  <div class="mh"><div class="mt" id="mt-aud">Nova audiência</div><button class="btn btnic" onclick="fecharOv('aud')">✕</button></div>
+  <div class="mb"><div class="fg2">
+    <div class="fg fc"><label>Processo *</label>
+      <select id="a-pid"><option value="">Selecione o processo</option></select>
+      <span class="fe" id="e-apid">Obrigatório</span></div>
+    <div class="fg"><label>Data *</label><input type="date" id="a-data"><span class="fe" id="e-adata">Obrigatório</span></div>
+    <div class="fg"><label>Horário</label><input type="time" id="a-hora"></div>
+    <div class="fg fc"><label>Tipo de audiência *</label>
+      <select id="a-tipo">
+        <option value="">Selecione</option>
+        <option>Audiência de Conciliação</option>
+        <option>Audiência de Instrução</option>
+        <option>Audiência Una</option>
+        <option>Audiência de Julgamento</option>
+        <option>Audiência Preliminar</option>
+        <option>Audiência de Mediação</option>
+        <option>Sessão de Julgamento</option>
+        <option>Outra</option>
+      </select>
+      <span class="fe" id="e-atipo">Obrigatório</span></div>
+    <div class="fg fc"><label>Local / Sala</label><input type="text" id="a-local" placeholder="Ex: 1ª Vara Cível, Sala 202..."></div>
+    <div class="fg fc"><label>Observações</label><input type="text" id="a-obs" placeholder="(opcional)"></div>
+  </div></div>
+  <div class="mf"><button class="btn" onclick="fecharOv('aud')">Cancelar</button><button class="btn btnp" onclick="salvarAud()">Salvar audiência</button></div>
+</div>
+</div>
+
+<script>
+// ============================================================
+// DADOS
+// ============================================================
+var processos = [];
+var prazos = [];
+var suspensoes = [];
+var audiencias = [];
+var _eP = null;
+var _eS = null;
+var _eA = null;
+
+function carregar() {
+  try { processos  = JSON.parse(localStorage.getItem('jg_p')  || '[]'); } catch(e) { processos  = []; }
+  try { prazos     = JSON.parse(localStorage.getItem('jg_z')  || '[]'); } catch(e) { prazos     = []; }
+  try { suspensoes = JSON.parse(localStorage.getItem('jg_s')  || '[]'); } catch(e) { suspensoes = []; }
+  try { audiencias = JSON.parse(localStorage.getItem('jg_a')  || '[]'); } catch(e) { audiencias = []; }
+}
+
+function salvar() {
+  try {
+    localStorage.setItem('jg_p', JSON.stringify(processos));
+    localStorage.setItem('jg_z', JSON.stringify(prazos));
+    localStorage.setItem('jg_s', JSON.stringify(suspensoes));
+    localStorage.setItem('jg_a', JSON.stringify(audiencias));
+  } catch(e) {
+    toast('Erro ao salvar dados', 'er');
+  }
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function hj() { return new Date().toISOString().slice(0,10); }
+function fd(d) { if(!d) return '—'; var p=d.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; }
+function dd(d) {
+  if(!d) return null;
+  var t=new Date(); t.setHours(0,0,0,0);
+  var p=d.split('-');
+  var alvo=new Date(parseInt(p[0]),parseInt(p[1])-1,parseInt(p[2]));
+  return Math.ceil((alvo-t)/86400000);
+}
+function esc(s) { var e=document.createElement('div'); e.textContent=s; return e.innerHTML; }
+
+function mCNJ(el) {
+  var v=el.value.replace(/\D/g,'').slice(0,20), r='';
+  if(v.length>0) r=v.slice(0,7);
+  if(v.length>7) r+='-'+v.slice(7,9);
+  if(v.length>9) r+='.'+v.slice(9,13);
+  if(v.length>13) r+='.'+v.slice(13,14);
+  if(v.length>14) r+='.'+v.slice(14,16);
+  if(v.length>16) r+='.'+v.slice(16,20);
+  el.value=r;
+}
+
+function mMoney(el) {
+  var v=el.value.replace(/\D/g,'');
+  if(!v) { el.value=''; return; }
+  el.value=(parseInt(v,10)/100).toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+}
+
+function pMoney(s) { return parseFloat((s||'0').replace(/\./g,'').replace(',','.'))||0; }
+function fMoney(v) { if(!v) return '—'; return 'R$ '+v.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.'); }
+function vCNJ(s) { return /^\d{7}-\d{2}\.\d{4}\.\d\.\d{2}\.\d{4}$/.test(s); }
+
+function toast(msg, tp) {
+  var el=document.getElementById('tst');
+  el.textContent=msg;
+  el.className='toast on'+(tp?' '+tp:'');
+  setTimeout(function(){ el.className='toast'; }, 2800);
+}
+
+function abrirOv(n) { document.getElementById('ov-'+n).classList.add('open'); }
+function fecharOv(n) { document.getElementById('ov-'+n).classList.remove('open'); }
+
+// ============================================================
+// BADGES
+// ============================================================
+function bT(t) {
+  var m={Trabalhista:'bt',Cível:'bc',Consumidor:'bco'};
+  return '<span class="bdg '+(m[t]||'')+'">'+( t||'—')+'</span>';
+}
+function bP(pz) {
+  var d=dd(pz.fatal);
+  if(pz.status==='Cumprido') return '<span class="bdg bd">✓ Cumprido</span>';
+  if(d===null) return '<span class="bdg bo">Em aberto</span>';
+  if(d<0) return '<span class="bdg bl">⚠ Vencido '+Math.abs(d)+'d</span>';
+  if(d===0) return '<span class="bdg bl">🔴 Hoje!</span>';
+  if(d<=3) return '<span class="bdg" style="background:var(--aml);color:var(--am)">⚡ '+d+'d</span>';
+  return '<span class="bdg bo">Em '+d+'d</span>';
+}
+function bL(p) {
+  if(p.advAutor&&p.advReu) return '<span class="bdg" style="background:#FEF9E2;color:#7A5E00">Ambos</span>';
+  if(p.advAutor) return '<span class="bdg bau">Adv. Autor</span>';
+  if(p.advReu)   return '<span class="bdg bre">Adv. Réu</span>';
+  return '<span style="color:var(--txt3)">—</span>';
+}
+
+// ============================================================
+// TIPOS DE PRAZO
+// ============================================================
+var TIPOS = [
+  {g:'Peças iniciais',l:'Petição Inicial',m:15},
+  {g:'Peças iniciais',l:'Petição Inicial com Pedido de Liminar',m:15},
+  {g:'Peças iniciais',l:'Mandado de Segurança',m:120,ms:true},
+  {g:'Peças iniciais',l:'Mandado de Segurança com Pedido Liminar',m:120,ms:true},
+  {g:'Defesa',l:'Contestação',m:15},{g:'Defesa',l:'Contestação e Reconvenção',m:15},
+  {g:'Defesa',l:'Impugnação ao Valor da Causa',m:15},{g:'Defesa',l:'Exceção de Incompetência',m:15},
+  {g:'Defesa',l:'Exceção de Suspeição',m:15},{g:'Defesa',l:'Exceção de Impedimento',m:15},
+  {g:'Manifestações',l:'Réplica',m:15},{g:'Manifestações',l:'Manifestação',m:15},
+  {g:'Manifestações',l:'Manifestação sobre Documentos',m:15},
+  {g:'Manifestações',l:'Manifestação sobre Laudo Pericial',m:15},
+  {g:'Manifestações',l:'Impugnação ao Laudo Pericial',m:15},
+  {g:'Manifestações',l:'Esclarecimentos ao Laudo Pericial',m:15},
+  {g:'Recursos',l:'Recurso Ordinário',m:15},{g:'Recursos',l:'Recurso de Revista',m:15},
+  {g:'Recursos',l:'Agravo de Instrumento',m:15},{g:'Recursos',l:'Agravo Interno',m:15},
+  {g:'Recursos',l:'Agravo Regimental',m:15},{g:'Recursos',l:'Apelação',m:15},
+  {g:'Recursos',l:'Embargos de Declaração',m:15},{g:'Recursos',l:'Embargos Infringentes',m:15},
+  {g:'Recursos',l:'Recurso Inominado (Juizados)',m:15},{g:'Recursos',l:'Recurso Especial',m:15},
+  {g:'Recursos',l:'Recurso Extraordinário',m:15},{g:'Recursos',l:'Contrarrazões de Recurso',m:15},
+  {g:'Recursos',l:'Contrarrazões de Apelação',m:15},
+  {g:'Execução',l:'Petição de Cumprimento de Sentença',m:15},{g:'Execução',l:'Petição de Execução',m:15},
+  {g:'Execução',l:'Impugnação ao Cumprimento de Sentença',m:15},
+  {g:'Execução',l:'Embargos à Execução',m:15},{g:'Execução',l:'Impugnação aos Embargos à Execução',m:15},
+  {g:'Incidentes',l:'Chamamento do Feito à Ordem',m:15},{g:'Incidentes',l:'Pedido de Preferência',m:15},
+  {g:'Incidentes',l:'Habilitação nos Autos',m:15},{g:'Incidentes',l:'Substabelecimento',m:15},
+  {g:'Incidentes',l:'Pedido de Vista dos Autos',m:15},{g:'Incidentes',l:'Pedido de Prazo',m:15},
+  {g:'Incidentes',l:'Petição Avulsa / Intercorrente',m:15},{g:'Incidentes',l:'Juntada de Documentos',m:15},
+  {g:'Incidentes',l:'Pedido de Reconsideração',m:15},{g:'Incidentes',l:'Memorial / Alegações Finais',m:15}
+];
+
+function buildTipos() {
+  var sel=document.getElementById('ztipo');
+  sel.innerHTML='<option value="">Selecione o tipo de prazo</option>';
+  var g='';
+  TIPOS.forEach(function(t) {
+    if(t.g!==g) { g=t.g; var og=document.createElement('optgroup'); og.label=g; sel.appendChild(og); }
+    var op=document.createElement('option');
+    op.value=t.l; op.textContent=t.l+(t.ms?' (máx 120d)':'');
+    sel.lastChild.appendChild(op);
+  });
+}
+
+function gT(l) { return TIPOS.find(function(t){return t.l===l;}); }
+
+function onTipo() {
+  var l=document.getElementById('ztipo').value;
+  var inp=document.getElementById('zdias');
+  var hint=document.getElementById('zhint');
+  var info=document.getElementById('zdinfo');
+  if(!l){inp.max=15;inp.value='';hint.textContent='';info.textContent='';return;}
+  var t=gT(l);
+  if(t){
+    inp.max=t.m; inp.value='';
+    hint.textContent='(1–'+t.m+')';
+    info.textContent=t.ms?'⚠ MS: máximo 120 dias':'Máximo '+t.m+' dias úteis';
+    info.style.color=t.ms?'var(--am)':'var(--txt3)';
+    document.getElementById('cdias').max=t.m;
+    document.getElementById('chint').textContent='(1–'+t.m+')';
+  }
+}
+
+// ============================================================
+// CÁLCULO DE PRAZO
+// ============================================================
+var FF=['01-01','04-21','05-01','09-07','10-12','11-02','11-15','11-20','12-25'];
+
+function pascoa(y) {
+  var a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3);
+  var h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451);
+  return new Date(y,Math.floor((h+l-7*m+114)/31)-1,(h+l-7*m+114)%31+1);
+}
+
+function aD(dt,n){var r=new Date(dt);r.setDate(r.getDate()+n);return r;}
+function ds(d){return d.toISOString().slice(0,10);}
+
+function isFer(s) {
+  var d=new Date(s+'T12:00:00');
+  var k=(d.getMonth()+1).toString().padStart(2,'0')+'-'+d.getDate().toString().padStart(2,'0');
+  if(FF.indexOf(k)>=0) return true;
+  var p=pascoa(d.getFullYear());
+  return [ds(aD(p,-48)),ds(aD(p,-47)),ds(aD(p,-2)),ds(p),ds(aD(p,60))].indexOf(s)>=0;
+}
+
+function isSusp(s,tid) {
+  if(!tid||tid==='outro') return false;
+  var ids=[tid];
+  if(tid==='TJBA-1G'||tid==='TJBA-2G') ids.push('TJBA');
+  if(tid==='TJBA') ids.push('TJBA-1G','TJBA-2G');
+  return suspensoes.some(function(x){
+    return ids.some(function(i){return x.tribunais.indexOf(i)>=0;}) && s>=x.inicio && s<=x.fim;
+  });
+}
+
+function isUtil(s,tid) {
+  var w=new Date(s+'T12:00:00').getDay();
+  return w!==0&&w!==6&&!isFer(s)&&!isSusp(s,tid);
+}
+
+function calcFatal(ini,n,tid) {
+  if(!ini||!n||n<1) return null;
+  var d=new Date(ini+'T12:00:00'); d.setDate(d.getDate()+1);
+  var s=ds(d);
+  while(!isUtil(s,tid)){d.setDate(d.getDate()+1);s=ds(d);}
+  var c=1;
+  while(c<n){d.setDate(d.getDate()+1);s=ds(d);if(isUtil(s,tid))c++;}
+  return s;
+}
+
+function vElab() {
+  var e=document.getElementById('zelab').value,f=document.getElementById('zfatal').value;
+  var err=document.getElementById('e-zelab'),inp=document.getElementById('zelab');
+  if(e&&f&&e>f){inp.classList.add('er');err.classList.add('on');return false;}
+  inp.classList.remove('er');err.classList.remove('on');return true;
+}
+
+function calcP() {
+  var ini=document.getElementById('ci').value;
+  var dias=parseInt(document.getElementById('cdias').value)||0;
+  var tid=document.getElementById('ctrib').value;
+  var res=document.getElementById('cres');
+  if(!ini||dias<1){res.style.display='none';return;}
+  var f=calcFatal(ini,dias,tid);
+  if(f){document.getElementById('cval').textContent=fd(f);res.style.display='flex';res.dataset.f=f;}
+}
+
+function usarP() {
+  var f=document.getElementById('cres').dataset.f;
+  if(f) document.getElementById('zfatal').value=f;
+}
+
+// ============================================================
+// EXPORT / IMPORT
+// ============================================================
+function expData() {
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify({processos:processos,prazos:prazos,suspensoes:suspensoes,audiencias:audiencias,ts:new Date().toISOString()},null,2)],{type:'application/json'}));
+  a.download='backup_'+hj()+'.json';
+  a.click();
+  toast('Backup exportado!','ok');
+}
+
+function impData(ev) {
+  var file=ev.target.files[0]; if(!file) return;
+  var r=new FileReader();
+  r.onload=function(e){
+    try{
+      var d=JSON.parse(e.target.result);
+      if(!d.processos||!d.prazos) throw new Error();
+      if(!confirm('Importar '+d.processos.length+' processo(s)?\nIsso substituirá os dados atuais.')) return;
+      processos=d.processos; prazos=d.prazos; suspensoes=d.suspensoes||[]; audiencias=d.audiencias||[];
+      salvar(); renderAll(); toast('Importado com sucesso!','ok');
+    } catch(x){ toast('Arquivo inválido','er'); }
+    ev.target.value='';
+  };
+  r.readAsText(file);
+}
+
+// ============================================================
+// PROCESSO — abrir modal
+// ============================================================
+function novoProcesso() {
+  _eP = null;
+  limparProc();
+  document.getElementById('mt-proc').textContent='Novo processo';
+  abrirOv('proc');
+}
+
+function limparProc() {
+  ['p-tipo','p-num','p-autor','p-reu','p-trib','p-comarca','p-orgao','p-valor','p-obs','p-rito','p-aud-data','p-aud-hora','p-aud-local'].forEach(function(i){
+    var el=document.getElementById(i); if(el) el.value='';
+  });
+  var audTipo=document.getElementById('p-aud-tipo'); if(audTipo) audTipo.value='';
+  document.getElementById('p-adva').checked=false;
+  document.getElementById('p-advr').checked=false;
+  document.querySelectorAll('#ov-proc .fe').forEach(function(e){e.classList.remove('on');});
+  document.querySelectorAll('#ov-proc .er').forEach(function(e){e.classList.remove('er');});
+}
+
+function editarProc(id) {
+  _eP=id;
+  limparProc();
+  var p=processos.find(function(x){return x.id===id;});
+  if(p){
+    document.getElementById('p-tipo').value   =p.tipo||'';
+    document.getElementById('p-num').value    =p.numero||'';
+    document.getElementById('p-autor').value  =p.autor||'';
+    document.getElementById('p-reu').value    =p.reu||'';
+    document.getElementById('p-trib').value   =p.tribunal||'';
+    document.getElementById('p-comarca').value=p.comarca||'';
+    document.getElementById('p-orgao').value  =p.orgao||'';
+    document.getElementById('p-valor').value  =p.valor?p.valor.toFixed(2).replace('.',','):'';
+    document.getElementById('p-obs').value    =p.obs||'';
+    document.getElementById('p-rito').value   =p.rito||'';
+    document.getElementById('p-adva').checked =!!p.advAutor;
+    document.getElementById('p-advr').checked =!!p.advReu;
+    // Campos de audiência
+    var audExist=audiencias.find(function(a){return a.processoId===id&&!a._standalone;});
+    if(audExist){
+      document.getElementById('p-aud-data').value =audExist.data||'';
+      document.getElementById('p-aud-hora').value =audExist.hora||'';
+      document.getElementById('p-aud-tipo').value =audExist.tipo||'';
+      document.getElementById('p-aud-local').value=audExist.local||'';
+    }
+  }
+  document.getElementById('mt-proc').textContent='Editar processo';
+  abrirOv('proc');
+}
+
+// ============================================================
+// PROCESSO — salvar
+// ============================================================
+function salvarProc() {
+  var ok=true;
+  function req(fid,eid){
+    var v=document.getElementById(fid).value.trim();
+    if(!v){document.getElementById(fid).classList.add('er');document.getElementById(eid).classList.add('on');ok=false;}
+    else{document.getElementById(fid).classList.remove('er');document.getElementById(eid).classList.remove('on');}
+    return v;
+  }
+  var tipo    =req('p-tipo','e-tipo');
+  var autor   =req('p-autor','e-autor');
+  var reu     =req('p-reu','e-reu');
+  var orgao   =req('p-orgao','e-orgao');
+  var tribunal=req('p-trib','e-trib');
+  var numero  =document.getElementById('p-num').value.trim();
+  if(!numero){
+    document.getElementById('p-num').classList.add('er');
+    document.getElementById('e-num').classList.add('on');
+    ok=false;
+  } else {
+    document.getElementById('p-num').classList.remove('er');
+    document.getElementById('e-num').classList.remove('on');
+  }
+  if(!ok){ toast('Preencha os campos obrigatórios','er'); return; }
+
+  var obj={
+    tipo:tipo, numero:numero, autor:autor, reu:reu, orgao:orgao, tribunal:tribunal,
+    rito:document.getElementById('p-rito').value.trim(),
+    comarca:document.getElementById('p-comarca').value.trim(),
+    advAutor:document.getElementById('p-adva').checked,
+    advReu:document.getElementById('p-advr').checked,
+    obs:document.getElementById('p-obs').value,
+    valor:pMoney(document.getElementById('p-valor').value)
+  };
+
+  if(_eP!==null) {
+    var idx=processos.findIndex(function(x){return x.id===_eP;});
+    if(idx>-1) processos[idx]=Object.assign(processos[idx],obj);
+    // Atualizar audiência vinculada (não-standalone)
+    var audData=document.getElementById('p-aud-data').value;
+    var audTipo=document.getElementById('p-aud-tipo').value;
+    if(audData&&audTipo){
+      var aiExist=audiencias.findIndex(function(a){return a.processoId===_eP&&!a._standalone;});
+      var audObj={id:'a'+Date.now(),processoId:_eP,data:audData,hora:document.getElementById('p-aud-hora').value,tipo:audTipo,local:document.getElementById('p-aud-local').value,status:'Agendada',_standalone:false};
+      if(aiExist>-1) audiencias[aiExist]=Object.assign(audiencias[aiExist],audObj);
+      else audiencias.push(audObj);
+    }
+    toast('Processo atualizado','ok');
+  } else {
+    obj.id='p'+Date.now(); obj.criadoEm=hj();
+    processos.push(obj);
+    // Salvar audiência vinculada se preenchida
+    var audData2=document.getElementById('p-aud-data').value;
+    var audTipo2=document.getElementById('p-aud-tipo').value;
+    if(audData2&&audTipo2){
+      audiencias.push({id:'a'+Date.now(),processoId:obj.id,data:audData2,hora:document.getElementById('p-aud-hora').value,tipo:audTipo2,local:document.getElementById('p-aud-local').value,status:'Agendada',_standalone:false});
+    }
+    toast('Processo cadastrado!','ok');
+  }
+  salvar(); fecharOv('proc'); renderAll();
+}
+
+function delProc(id) {
+  if(!confirm('Remover este processo e todos os seus prazos e audiências?')) return;
+  processos=processos.filter(function(x){return x.id!==id;});
+  prazos=prazos.filter(function(x){return x.processoId!==id;});
+  audiencias=audiencias.filter(function(x){return x.processoId!==id;});
+  salvar(); renderAll(); toast('Processo removido');
+}
+
+// ============================================================
+// PRAZO — modal e salvar
+// ============================================================
+function abrirPrazo(pid) {
+  var p=processos.find(function(x){return x.id===pid;});
+  document.getElementById('zpl').value=p?p.numero+' — '+p.autor:'';
+  document.getElementById('zpid').value=pid;
+  ['ztipo','zdias','zelab','zfatal','zobs'].forEach(function(i){document.getElementById(i).value='';});
+  document.getElementById('zdias').max=15;
+  document.getElementById('zhint').textContent='';
+  document.getElementById('zdinfo').textContent='';
+  document.getElementById('ci').value='';
+  document.getElementById('cdias').value='';
+  document.getElementById('ctrib').value='';
+  document.getElementById('cres').style.display='none';
+  document.querySelectorAll('#ov-prazo .fe').forEach(function(e){e.classList.remove('on');});
+  if(p&&p.tribunal){
+    var tv=p.tribunal==='TJBA'?'TJBA-1G':p.tribunal;
+    var sel=document.getElementById('ctrib');
+    for(var i=0;i<sel.options.length;i++){if(sel.options[i].value===tv){sel.value=tv;break;}}
+  }
+  buildTipos();
+  fecharOv('det'); abrirOv('prazo');
+}
+
+function salvarPrazo() {
+  var tipo=document.getElementById('ztipo').value;
+  var dias=parseInt(document.getElementById('zdias').value)||0;
+  var elab=document.getElementById('zelab').value;
+  var fatal=document.getElementById('zfatal').value;
+  var obs=document.getElementById('zobs').value;
+  var pid=document.getElementById('zpid').value;
+  var ok=true;
+  if(!tipo){document.getElementById('e-ztipo').classList.add('on');ok=false;}else document.getElementById('e-ztipo').classList.remove('on');
+  if(!dias){document.getElementById('e-zdias').classList.add('on');ok=false;}else document.getElementById('e-zdias').classList.remove('on');
+  if(!fatal){document.getElementById('e-zfatal').classList.add('on');ok=false;}else document.getElementById('e-zfatal').classList.remove('on');
+  if(!vElab()) ok=false;
+  if(!ok){toast('Preencha os campos obrigatórios','er');return;}
+  var t=gT(tipo);
+  if(t&&dias>t.m){toast('Máximo de '+t.m+' dias para este tipo','er');return;}
+  prazos.push({id:'z'+Date.now(),processoId:pid,tipo:tipo,dias:dias,elaboracao:elab,fatal:fatal,obs:obs,status:'Em aberto'});
+  salvar(); fecharOv('prazo'); renderAll(); toast('Prazo adicionado!','ok');
+}
+
+function togPrazo(id) {
+  var pz=prazos.find(function(x){return x.id===id;});
+  if(pz){pz.status=pz.status==='Cumprido'?'Em aberto':'Cumprido';salvar();renderAll();toast(pz.status==='Cumprido'?'✓ Prazo cumprido':'Prazo reaberto');}
+}
+
+function delPrazo(id) {
+  if(!confirm('Remover este prazo?')) return;
+  prazos=prazos.filter(function(x){return x.id!==id;});
+  salvar(); renderAll(); toast('Prazo removido');
+}
+
+// ============================================================
+// DETALHE
+// ============================================================
+function verDet(id) {
+  var p=processos.find(function(x){return x.id===id;}); if(!p) return;
+  document.getElementById('det-tit').textContent=p.autor+' × '+p.reu;
+  document.getElementById('det-sub').textContent=p.numero;
+  document.getElementById('det-ed').onclick=function(){fecharOv('det');editarProc(id);};
+  document.getElementById('det-pz').onclick=function(){abrirPrazo(id);};
+  var pp=prazos.filter(function(x){return x.processoId===id;});
+  var h='<div class="dg">'
+    +'<div><div class="dl">Tipo</div><div class="dv">'+bT(p.tipo)+'</div></div>'
+    +'<div><div class="dl">Representação</div><div class="dv">'+bL(p)+'</div></div>'
+    +'<div><div class="dl">Tribunal</div><div class="dv">'+(p.tribunal||'—')+'</div></div>'
+    +'<div><div class="dl">Comarca</div><div class="dv">'+(p.comarca||'—')+'</div></div>'
+    +'<div style="grid-column:1/-1"><div class="dl">Órgão julgador</div><div class="dv">'+(p.orgao||'—')+'</div></div>'
+    +'<div><div class="dl">Rito</div><div class="dv">'+(p.rito||'—')+'</div></div>'
+    +'<div><div class="dl">Valor da causa</div><div class="dv">'+fMoney(p.valor)+'</div></div>'
+    +'</div>';
+  if(p.obs) h+='<hr class="sep"><div class="dl" style="margin-bottom:6px">Observações</div>'
+    +'<div style="background:var(--sur2);border-radius:var(--r);padding:11px;font-family:monospace;font-size:13px;white-space:pre-wrap">'+esc(p.obs)+'</div>';
+  if(pp.length){
+    h+='<hr class="sep"><div class="dl" style="margin-bottom:8px">Prazos ('+pp.length+')</div>'
+      +'<table><thead><tr><th>Tipo</th><th>Dias</th><th>Elaboração</th><th>Fatal</th><th>Status</th><th>Ações</th></tr></thead><tbody>';
+    pp.sort(function(a,b){return(a.fatal||'').localeCompare(b.fatal||'');}).forEach(function(pz){
+      h+='<tr><td>'+pz.tipo+'</td><td style="text-align:center">'+(pz.dias||'—')+'</td>'
+        +'<td>'+fd(pz.elaboracao)+'</td><td style="font-weight:600">'+fd(pz.fatal)+'</td>'
+        +'<td>'+bP(pz)+'</td><td><div style="display:flex;gap:4px">'
+        +'<button class="btn btnsm '+(pz.status==='Cumprido'?'':'btng')+'" onclick="togPrazo(\''+pz.id+'\');verDet(\''+id+'\')">'+(pz.status==='Cumprido'?'Reabrir':'✓')+'</button>'
+        +'<button class="btn btnic btnsm btnd" onclick="delPrazo(\''+pz.id+'\');verDet(\''+id+'\')">🗑</button>'
+        +'</div></td></tr>';
+    });
+    h+='</tbody></table>';
+  } else h+='<hr class="sep"><div class="es"><div style="color:var(--txt3)">Nenhum prazo cadastrado</div></div>';
+  document.getElementById('det-body').innerHTML=h;
+  abrirOv('det');
+}
+
+// ============================================================
+// SUSPENSÕES
+// ============================================================
+var TRIBS=['TJBA-1G','TJBA-2G','TJAC','TJAL','TJAM','TJAP','TJBA','TJCE','TJDF','TJES','TJGO','TJMA','TJMG','TJMS','TJMT','TJPA','TJPB','TJPE','TJPI','TJPR','TJRJ','TJRN','TJRO','TJRR','TJRS','TJSC','TJSE','TJSP','TJTO','TRT1','TRT2','TRT3','TRT4','TRT5','TRT6','TRT7','TRT8','TRT9','TRT10','TRT11','TRT12','TRT13','TRT14','TRT15','TRT16','TRT17','TRT18','TRT19','TRT20','TRT21','TRT22','TRT23','TRT24','TRF1','TRF2','TRF3','TRF4','TRF5','TRF6','STJ','STF','TST','TSE','STM'];
+
+function buildTG() {
+  document.getElementById('tgr').innerHTML=TRIBS.map(function(t){
+    var l=t==='TJBA-1G'?'TJBA 1ºG':t==='TJBA-2G'?'TJBA 2ºG':t;
+    return '<div class="ti"><input type="checkbox" id="tc-'+t+'" value="'+t+'"><label for="tc-'+t+'">'+l+'</label></div>';
+  }).join('');
+}
+function gTribs(){return TRIBS.filter(function(t){var e=document.getElementById('tc-'+t);return e&&e.checked;});}
+function selA(){TRIBS.forEach(function(t){var e=document.getElementById('tc-'+t);if(e)e.checked=true;});}
+function selN(){TRIBS.forEach(function(t){var e=document.getElementById('tc-'+t);if(e)e.checked=false;});}
+function selTJ(){selN();['TJBA-1G','TJBA-2G','TJBA'].forEach(function(t){var e=document.getElementById('tc-'+t);if(e)e.checked=true;});}
+
+function abrirSusp(id) {
+  _eS=id||null;
+  buildTG();
+  ['s-desc','s-ini','s-fim','s-obs'].forEach(function(i){document.getElementById(i).value='';});
+  selN();
+  document.querySelectorAll('#ov-susp .fe').forEach(function(e){e.classList.remove('on');});
+  document.getElementById('mt-susp').textContent=id?'Editar suspensão':'Nova suspensão';
+  if(id){
+    var s=suspensoes.find(function(x){return x.id===id;});
+    if(s){
+      document.getElementById('s-desc').value=s.descricao||'';
+      document.getElementById('s-ini').value=s.inicio||'';
+      document.getElementById('s-fim').value=s.fim||'';
+      document.getElementById('s-obs').value=s.obs||'';
+      (s.tribunais||[]).forEach(function(t){var e=document.getElementById('tc-'+t);if(e)e.checked=true;});
+    }
+  }
+  abrirOv('susp');
+}
+
+function salvarSusp() {
+  var desc=document.getElementById('s-desc').value.trim();
+  var ini=document.getElementById('s-ini').value;
+  var fim=document.getElementById('s-fim').value;
+  var obs=document.getElementById('s-obs').value.trim();
+  var tribs=gTribs();
+  var ok=true;
+  if(!desc){document.getElementById('e-sdesc').classList.add('on');ok=false;}else document.getElementById('e-sdesc').classList.remove('on');
+  if(!ini){document.getElementById('e-sini').classList.add('on');ok=false;}else document.getElementById('e-sini').classList.remove('on');
+  if(!fim){document.getElementById('e-sfim').classList.add('on');ok=false;}else document.getElementById('e-sfim').classList.remove('on');
+  if(!tribs.length){document.getElementById('e-stri').classList.add('on');ok=false;}else document.getElementById('e-stri').classList.remove('on');
+  if(!ok) return;
+  if(_eS){
+    var idx=suspensoes.findIndex(function(x){return x.id===_eS;});
+    if(idx>-1) suspensoes[idx]=Object.assign(suspensoes[idx],{descricao:desc,inicio:ini,fim:fim,obs:obs,tribunais:tribs});
+    toast('Suspensão atualizada','ok');
+  } else {
+    suspensoes.push({id:'s'+Date.now(),descricao:desc,inicio:ini,fim:fim,obs:obs,tribunais:tribs});
+    toast('Suspensão cadastrada!','ok');
+  }
+  salvar(); fecharOv('susp'); renderSusp();
+}
+
+function delSusp(id) {
+  if(!confirm('Remover esta suspensão?')) return;
+  suspensoes=suspensoes.filter(function(x){return x.id!==id;});
+  salvar(); renderSusp(); toast('Suspensão removida');
+}
+
+// ============================================================
+// RENDER SUSPENSÕES
+// ============================================================
+function renderSusp() {
+  var el=document.getElementById('slist');
+  if(!suspensoes.length){
+    el.innerHTML='<div class="tc"><div class="es"><div style="font-size:36px;opacity:.3">📅</div><div style="font-weight:600;color:var(--txt2);margin:8px 0 4px">Nenhuma suspensão</div><div style="color:var(--txt3)">Clique em + Nova suspensão</div></div></div>';
+    return;
+  }
+  var hoje=hj();
+  el.innerHTML=suspensoes.slice().sort(function(a,b){return a.inicio.localeCompare(b.inicio);}).map(function(s){
+    var ativa=hoje>=s.inicio&&hoje<=s.fim,passada=hoje>s.fim;
+    var dot=ativa?'var(--am)':passada?'var(--txt3)':'var(--gr)';
+    var dias=Math.ceil((new Date(s.fim+'T12:00:00')-new Date(s.inicio+'T12:00:00'))/86400000)+1;
+    var lbl=ativa?' · <strong style="color:var(--am)">Em vigor</strong>':passada?' · <span style="color:var(--txt3)">Histórico</span>':' · <span style="color:var(--gr)">Futura</span>';
+    var tribs=(s.tribunais||[]).slice(0,12).map(function(t){return '<span class="bdg bn" style="font-size:10px">'+(t==='TJBA-1G'?'TJBA 1ºG':t==='TJBA-2G'?'TJBA 2ºG':t)+'</span>';}).join('');
+    return '<div class="si"><div class="sdot" style="background:'+dot+'"></div>'
+      +'<div class="sinf"><div class="stit2">'+esc(s.descricao)+'</div>'
+      +'<div class="sper">'+fd(s.inicio)+' — '+fd(s.fim)+' · '+dias+'d'+lbl+'</div>'
+      +'<div class="stri">'+tribs+'</div>'
+      +(s.obs?'<div style="font-size:12px;color:var(--txt3);margin-top:4px">'+esc(s.obs)+'</div>':'')
+      +'</div><div style="display:flex;gap:6px;flex-shrink:0">'
+      +'<button class="btn btnsm" onclick="abrirSusp(\''+s.id+'\')">✏</button>'
+      +'<button class="btn btnsm btnd" onclick="delSusp(\''+s.id+'\')">🗑</button>'
+      +'</div></div>';
+  }).join('');
+}
+
+// ============================================================
+// RENDER DASHBOARD
+// ============================================================
+function renderDash() {
+  var ab=prazos.filter(function(x){return x.status!=='Cumprido';});
+  var cu=prazos.filter(function(x){return x.status==='Cumprido';});
+  var ve=ab.filter(function(x){return dd(x.fatal)<0;});
+  var hoje2=ab.filter(function(x){return dd(x.fatal)===0;});
+  document.getElementById('mets').innerHTML=
+    '<div class="metric"><div class="mv ca">'+processos.length+'</div><div class="ml">Processos</div></div>'
+    +'<div class="metric"><div class="mv">'+prazos.length+'</div><div class="ml">Total prazos</div></div>'
+    +'<div class="metric"><div class="mv cam">'+ab.length+'</div><div class="ml">Em aberto</div></div>'
+    +'<div class="metric"><div class="mv cgr">'+cu.length+'</div><div class="ml">Cumpridos</div></div>'
+    +'<div class="metric"><div class="mv crd">'+ve.length+'</div><div class="ml">Vencidos</div><div class="ms">'+hoje2.length+' vencem hoje</div></div>';
+
+  var nbz=document.getElementById('nb-z');
+  var urg=ab.filter(function(x){var d=dd(x.fatal);return d!==null&&d<=3;}).length;
+  nbz.textContent=urg; nbz.style.display=urg?'':'none';
+  var nbp=document.getElementById('nb-p');
+  nbp.textContent=processos.length; nbp.style.display=processos.length?'':'none';
+
+  var tipos=['Trabalhista','Cível','Consumidor'],cores=['#1C2E4A','#3A4A8A','#0D6B5E'],tt=processos.length||1;
+  document.getElementById('ch-t').innerHTML=tipos.map(function(t,i){
+    var n=processos.filter(function(x){return x.tipo===t;}).length;
+    return '<div class="br"><span class="brl">'+t+'</span><div class="brb"><div class="brf" style="width:'+Math.round(n/tt*100)+'%;background:'+cores[i]+'"></div></div><span class="brn">'+n+'</span></div>';
+  }).join('');
+
+  var tp=prazos.length||1;
+  document.getElementById('ch-p').innerHTML=[['Em aberto',ab.length,'#92560A'],['Cumpridos',cu.length,'#2D6A4F'],['Vencidos',ve.length,'#8B2020']].map(function(r){
+    return '<div class="br"><span class="brl">'+r[0]+'</span><div class="brb"><div class="brf" style="width:'+Math.round(r[1]/tp*100)+'%;background:'+r[2]+'"></div></div><span class="brn">'+r[1]+'</span></div>';
+  }).join('');
+
+  // Prazos do dia
+  var hoje=hj();
+  var dia=prazos.filter(function(pz){return pz.status!=='Cumprido'&&(pz.fatal===hoje||pz.elaboracao===hoje);});
+  var diaw=document.getElementById('dia-wrap');
+  if(dia.length){
+    var dh='<div class="stitle" style="display:flex;align-items:center;gap:8px">🔴 Prazos do dia <span class="nb">'+dia.length+'</span></div><div class="tc">';
+    dia.forEach(function(pz){
+      var proc=processos.find(function(x){return x.id===pz.processoId;});
+      var tf=pz.fatal===hoje?'<span class="bdg bl" style="font-size:11px">Fatal HOJE</span>':'';
+      var te=pz.elaboracao===hoje?'<span class="bdg" style="background:var(--aml);color:var(--am);font-size:11px">Elaboração HOJE</span>':'';
+      dh+='<div class="pi today" onclick="'+(proc?'verDet(\''+proc.id+'\')':'')+'">'
+        +'<div class="pif"><div class="pit" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">'+pz.tipo+' '+tf+te+'</div>'
+        +'<div class="pip">'+(proc?proc.numero+' — '+proc.autor+' × '+proc.reu:'—')+'</div></div>'
+        +'<div class="pid"><div class="pidv">'+fd(pz.fatal)+'</div></div></div>';
+    });
+    dh+='</div>';
+    diaw.innerHTML=dh;
+  } else { diaw.innerHTML=''; }
+
+  // Próximos vencimentos
+  var prox2=ab.filter(function(x){return x.fatal;}).sort(function(a,b){return a.fatal.localeCompare(b.fatal);}).slice(0,10);
+  if(!prox2.length){
+    document.getElementById('prox').innerHTML='<div class="es"><div style="font-size:36px;opacity:.3;margin-bottom:8px">✅</div><div style="font-weight:600;color:var(--txt2)">Nenhum prazo em aberto</div></div>';
+  } else {
+    document.getElementById('prox').innerHTML=prox2.map(function(pz){
+      var proc=processos.find(function(x){return x.id===pz.processoId;});
+      var d=dd(pz.fatal);
+      var cls=d<0?'late':d===0?'today':d<=3?'soon':'';
+      var lbl=d<0?'Vencido '+Math.abs(d)+'d':d===0?'Hoje!':d===1?'Amanhã':d+'d';
+      return '<div class="pi '+cls+'" onclick="'+(proc?'verDet(\''+proc.id+'\')':'')+'">'
+        +'<div class="pif"><div class="pit">'+pz.tipo+'</div><div class="pip">'+(proc?proc.numero+' — '+proc.autor:'—')+'</div></div>'
+        +'<div style="margin-right:8px">'+bP(pz)+'</div>'
+        +'<div class="pid"><div class="pidv">'+fd(pz.fatal)+'</div><div class="pids">'+lbl+'</div></div></div>';
+    }).join('');
+  }
+}
+
+// ============================================================
+// RENDER PROCESSOS
+// ============================================================
+function renderP() {
+  var q=(document.getElementById('sp').value||'').toLowerCase();
+  var ft=document.getElementById('fpt').value;
+  var fl=document.getElementById('fpl').value;
+  var ftr=document.getElementById('fptr').value;
+  var tribs2=[...new Set(processos.map(function(p){return p.tribunal;}).filter(Boolean))].sort();
+  var sel=document.getElementById('fptr'); var cur=sel.value;
+  sel.innerHTML='<option value="">Todos os tribunais</option>'+tribs2.map(function(t){return '<option'+(t===cur?' selected':'')+'>'+t+'</option>';}).join('');
+  var list=processos.filter(function(p){
+    if(ft&&p.tipo!==ft) return false;
+    if(ftr&&p.tribunal!==ftr) return false;
+    if(fl==='autor'&&!p.advAutor) return false;
+    if(fl==='reu'&&!p.advReu) return false;
+    if(q&&![p.numero,p.autor,p.reu,p.orgao,p.tribunal,p.comarca].some(function(x){return(x||'').toLowerCase().indexOf(q)>=0;})) return false;
+    return true;
+  });
+  if(!list.length){
+    document.getElementById('ptb').innerHTML='<tr><td colspan="8"><div class="es"><div style="font-size:36px;opacity:.3">📁</div><div style="font-weight:600;color:var(--txt2);margin:8px 0 4px">'+(processos.length?'Nenhum resultado':'Nenhum processo cadastrado')+'</div></div></td></tr>';
+    return;
+  }
+  document.getElementById('ptb').innerHTML=list.map(function(p){
+    var pp2=prazos.filter(function(x){return x.processoId===p.id&&x.status!=='Cumprido';}).sort(function(a,b){return(a.fatal||'').localeCompare(b.fatal||'');});
+    var prox3=pp2[0];
+    var pc=prox3?bP(prox3)+'<div style="font-size:11px;color:var(--txt3);margin-top:2px">'+fd(prox3.fatal)+'</div>':'<span style="color:var(--txt3)">—</span>';
+    return '<tr><td class="mono" style="cursor:pointer" onclick="verDet(\''+p.id+'\')">'+p.numero+'</td>'
+      +'<td>'+bT(p.tipo)+'</td>'
+      +'<td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(p.autor)+'">'+p.autor+'</td>'
+      +'<td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(p.reu)+'">'+p.reu+'</td>'
+      +'<td><span class="bdg bn">'+(p.tribunal||'—')+'</span></td>'
+      +'<td>'+bL(p)+'</td>'
+      +'<td>'+pc+'</td>'
+      +'<td><div style="display:flex;gap:4px">'
+        +'<button class="btn btnic btnsm" onclick="verDet(\''+p.id+'\')" title="Ver">👁</button>'
+        +'<button class="btn btnic btnsm" onclick="abrirPrazo(\''+p.id+'\')" title="Prazo">⏰</button>'
+        +'<button class="btn btnic btnsm" onclick="editarProc(\''+p.id+'\')" title="Editar">✏</button>'
+        +'<button class="btn btnic btnsm btnd" onclick="delProc(\''+p.id+'\')" title="Excluir">🗑</button>'
+      +'</div></td></tr>';
+  }).join('');
+}
+
+// ============================================================
+// RENDER PRAZOS
+// ============================================================
+function renderZ() {
+  var fs=document.getElementById('fzs').value;
+  var fp=document.getElementById('fzp').value;
+  var ftp=document.getElementById('fztp').value;
+  var sel=document.getElementById('fzp'); var cur=sel.value;
+  var procs2=processos.filter(function(p){return prazos.some(function(z){return z.processoId===p.id;});});
+  sel.innerHTML='<option value="">Todos os processos</option>'+procs2.map(function(p){return '<option value="'+p.id+'"'+(p.id===cur?' selected':'')+'>'+p.numero+' — '+p.autor+'</option>';}).join('');
+  var list=prazos.filter(function(pz){
+    var proc=processos.find(function(x){return x.id===pz.processoId;});
+    if(fs&&pz.status!==fs) return false;
+    if(fp&&pz.processoId!==fp) return false;
+    if(ftp&&proc&&proc.tipo!==ftp) return false;
+    return true;
+  }).sort(function(a,b){return(a.fatal||'').localeCompare(b.fatal||'');});
+  if(!list.length){
+    document.getElementById('ztb').innerHTML='<tr><td colspan="9"><div class="es"><div style="font-size:36px;opacity:.3">⏰</div><div style="font-weight:600;color:var(--txt2)">Nenhum prazo</div></div></td></tr>';
+    return;
+  }
+  document.getElementById('ztb').innerHTML=list.map(function(pz){
+    var proc=processos.find(function(x){return x.id===pz.processoId;});
+    return '<tr><td class="mono" style="cursor:pointer" onclick="'+(proc?'verDet(\''+proc.id+'\')':'')+'">'+(proc?proc.numero:'—')+'</td>'
+      +'<td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(proc?proc.autor:'—')+'</td>'
+      +'<td>'+pz.tipo+'</td><td style="text-align:center">'+(pz.dias||'—')+'</td>'
+      +'<td>'+fd(pz.elaboracao)+'</td><td style="font-weight:600">'+fd(pz.fatal)+'</td>'
+      +'<td>'+(proc?fMoney(proc.valor):'—')+'</td>'
+      +'<td>'+bP(pz)+'</td>'
+      +'<td><div style="display:flex;gap:4px">'
+        +'<button class="btn btnsm '+(pz.status==='Cumprido'?'':'btng')+'" onclick="togPrazo(\''+pz.id+'\')">'+(pz.status==='Cumprido'?'Reabrir':'✓ Cumprir')+'</button>'
+        +'<button class="btn btnic btnsm btnd" onclick="delPrazo(\''+pz.id+'\')">🗑</button>'
+      +'</div></td></tr>';
+  }).join('');
+}
+
+// ============================================================
+// RELATÓRIOS
+// ============================================================
+function popRelTr() {
+  var sel=document.getElementById('rtr'); if(!sel) return;
+  var cur=sel.value;
+  var t=[...new Set(processos.map(function(p){return p.tribunal;}).filter(Boolean))].sort();
+  sel.innerHTML='<option value="">Todos</option>'+t.map(function(x){return '<option'+(x===cur?' selected':'')+'>'+x+'</option>';}).join('');
+}
+
+function gRelList() {
+  var ini=document.getElementById('ri').value, fim=document.getElementById('rf').value;
+  var trib=document.getElementById('rtr').value, tipo=document.getElementById('rta').value;
+  if(!ini||!fim) return null;
+  // Comparação de strings ISO YYYY-MM-DD é lexicograficamente correta
+  // >= ini e <= fim garante inclusão das datas exatas dos extremos
+  return prazos.filter(function(pz){
+    if(pz.status==='Cumprido'||!pz.fatal) return false;
+    if(pz.fatal < ini || pz.fatal > fim) return false;
+    var proc=processos.find(function(x){return x.id===pz.processoId;});
+    if(trib&&proc&&proc.tribunal!==trib) return false;
+    if(tipo&&proc&&proc.tipo!==tipo) return false;
+    return true;
+  }).sort(function(a,b){return a.fatal.localeCompare(b.fatal);});
+}
+
+function prevRel() {
+  var ini=document.getElementById('ri').value, fim=document.getElementById('rf').value;
+  if(!ini||!fim){alert('Informe o período');return;}
+  var list=gRelList();
+  var cnt=document.getElementById('rcount'), pv=document.getElementById('rprev');
+  if(!list||!list.length){cnt.textContent='Nenhum prazo no período';pv.style.display='none';return;}
+  cnt.textContent=list.length+' prazo(s) encontrado(s)'; pv.style.display='';
+  document.getElementById('rprevc').innerHTML='<table><thead><tr><th>Fatal</th><th>Tipo</th><th>Processo</th><th>Autor</th><th>Réu</th><th>Tribunal</th><th>Órgão</th><th>Dias</th><th>Elaboração</th></tr></thead><tbody>'
+    +list.map(function(pz){
+      var p=processos.find(function(x){return x.id===pz.processoId;});
+      return '<tr><td style="font-weight:600">'+fd(pz.fatal)+'</td><td>'+pz.tipo+'</td><td class="mono">'+(p?p.numero:'—')+'</td><td>'+(p?p.autor:'—')+'</td><td>'+(p?p.reu:'—')+'</td><td>'+(p?p.tribunal:'—')+'</td><td>'+(p?p.orgao:'—')+'</td><td style="text-align:center">'+(pz.dias||'—')+'</td><td>'+fd(pz.elaboracao)+'</td></tr>';
+    }).join('')
+    +'</tbody></table>';
+}
+
+function gerarPDF() {
+  var ini=document.getElementById('ri').value, fim=document.getElementById('rf').value;
+  if(!ini||!fim){alert('Informe o período');return;}
+  var list=gRelList();
+  if(!list||!list.length){alert('Nenhum prazo em aberto no período.');return;}
+  var trib=document.getElementById('rtr').value, tipo=document.getElementById('rta').value;
+  var flt=([trib?'Tribunal: '+trib:'',tipo?'Tipo: '+tipo:'']).filter(Boolean).join(' · ')||'Sem filtros';
+  var linhas=list.map(function(pz){
+    var p=processos.find(function(x){return x.id===pz.processoId;});
+    return '<tr><td style="font-weight:700;color:#1C2E4A">'+fd(pz.fatal)+'</td><td>'+pz.tipo+'</td><td style="font-family:monospace;font-size:11px">'+(p?p.numero:'—')+'</td><td>'+(p?p.autor:'—')+'</td><td>'+(p?p.reu:'—')+'</td><td>'+(p?p.tribunal:'—')+'</td><td>'+(p?p.orgao:'—')+'</td><td style="text-align:center">'+(pz.dias||'—')+'</td><td>'+fd(pz.elaboracao)+'</td></tr>';
+  }).join('');
+  var w=window.open('','_blank');
+  w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Relatório de Prazos</title>'
+    +'<style>@page{size:A4 landscape;margin:15mm}*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;font-size:11px;color:#1A1E2E}'
+    +'.h{display:flex;justify-content:space-between;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid #1C2E4A}'
+    +'.hl{font-size:20px;font-weight:700;color:#1C2E4A}.hs{font-size:10px;color:#8A96AA;text-transform:uppercase;margin-top:2px}'
+    +'.hr{text-align:right}.rt{font-size:13px;font-weight:700;color:#1C2E4A}.rp{font-size:11px;color:#4A5568;margin-top:2px}.rf{font-size:10px;color:#8A96AA}'
+    +'table{width:100%;border-collapse:collapse}thead tr{background:#1C2E4A;color:#fff}'
+    +'th{padding:7px 8px;text-align:left;font-size:10px;text-transform:uppercase}td{padding:6px 8px;border-bottom:1px solid #E8ECF2}'
+    +'tr:nth-child(even) td{background:#F4F5F7}.ft{margin-top:12px;padding-top:8px;border-top:1px solid #E8ECF2;display:flex;justify-content:space-between;font-size:10px;color:#8A96AA}'
+    +'.np{padding:10px;background:#E6EAF2;margin-bottom:12px}@media print{.np{display:none}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}'
+    +'</style></head><body>'
+    +'<div class="np"><button onclick="window.print()" style="padding:7px 18px;background:#1C2E4A;color:#fff;border:none;border-radius:6px;font-size:13px;cursor:pointer;font-weight:600">🖨 Imprimir / Salvar PDF</button>'
+    +'<span style="margin-left:12px;font-size:13px">Escolha "Salvar como PDF" na impressora</span></div>'
+    +'<div class="h"><div><div class="hl">Wilquer Bosque</div><div class="hs">Advogado — Sistema de Gestão Jurídica</div></div>'
+    +'<div class="hr"><div class="rt">Relatório de Prazos em Aberto</div><div class="rp">Período: '+fd(ini)+' a '+fd(fim)+'</div><div class="rf">Filtros: '+flt+' · '+hj()+' · '+list.length+' prazo(s)</div></div></div>'
+    +'<table><thead><tr><th>Prazo Fatal</th><th>Tipo de Prazo</th><th>Nº Processo</th><th>Parte Autora</th><th>Parte Ré</th><th>Tribunal</th><th>Órgão Julgador</th><th>Dias</th><th>Elaboração</th></tr></thead>'
+    +'<tbody>'+linhas+'</tbody></table>'
+    +'<div class="ft"><span>Wilquer Bosque Advogado</span><span>'+list.length+' prazo(s)</span></div>'
+    +'</body></html>');
+  w.document.close();
+}
+
+// ============================================================
+// AUDIÊNCIAS
+// ============================================================
+function abrirAud(pid) {
+  _eA = null;
+  // Popular select de processos
+  var sel=document.getElementById('a-pid');
+  sel.innerHTML='<option value="">Selecione o processo</option>'+processos.map(function(p){
+    return '<option value="'+p.id+'"'+(pid&&p.id===pid?' selected':'')+'>'+p.numero+' — '+p.autor+' × '+p.reu+'</option>';
+  }).join('');
+  ['a-data','a-hora','a-local','a-obs'].forEach(function(i){document.getElementById(i).value='';});
+  document.getElementById('a-tipo').value='';
+  if(pid) sel.value=pid;
+  document.querySelectorAll('#ov-aud .fe').forEach(function(e){e.classList.remove('on');});
+  document.getElementById('mt-aud').textContent='Nova audiência';
+  abrirOv('aud');
+}
+
+function editarAud(id) {
+  _eA=id;
+  var a=audiencias.find(function(x){return x.id===id;}); if(!a) return;
+  var sel=document.getElementById('a-pid');
+  sel.innerHTML='<option value="">Selecione o processo</option>'+processos.map(function(p){
+    return '<option value="'+p.id+'"'+(p.id===a.processoId?' selected':'')+'>'+p.numero+' — '+p.autor+' × '+p.reu+'</option>';
+  }).join('');
+  sel.value=a.processoId||'';
+  document.getElementById('a-data').value=a.data||'';
+  document.getElementById('a-hora').value=a.hora||'';
+  document.getElementById('a-tipo').value=a.tipo||'';
+  document.getElementById('a-local').value=a.local||'';
+  document.getElementById('a-obs').value=a.obs||'';
+  document.getElementById('mt-aud').textContent='Editar audiência';
+  abrirOv('aud');
+}
+
+function salvarAud() {
+  var pid=document.getElementById('a-pid').value;
+  var data=document.getElementById('a-data').value;
+  var tipo=document.getElementById('a-tipo').value;
+  var ok=true;
+  if(!pid){document.getElementById('e-apid').classList.add('on');ok=false;}else document.getElementById('e-apid').classList.remove('on');
+  if(!data){document.getElementById('e-adata').classList.add('on');ok=false;}else document.getElementById('e-adata').classList.remove('on');
+  if(!tipo){document.getElementById('e-atipo').classList.add('on');ok=false;}else document.getElementById('e-atipo').classList.remove('on');
+  if(!ok){toast('Preencha os campos obrigatórios','er');return;}
+  var obj={processoId:pid,data:data,hora:document.getElementById('a-hora').value,tipo:tipo,local:document.getElementById('a-local').value,obs:document.getElementById('a-obs').value,status:'Agendada',_standalone:true};
+  if(_eA){
+    var idx=audiencias.findIndex(function(x){return x.id===_eA;});
+    if(idx>-1) audiencias[idx]=Object.assign(audiencias[idx],obj);
+    toast('Audiência atualizada','ok');
+  } else {
+    obj.id='a'+Date.now();
+    audiencias.push(obj);
+    toast('Audiência cadastrada!','ok');
+  }
+  salvar(); fecharOv('aud'); renderAll();
+}
+
+function togAud(id) {
+  var a=audiencias.find(function(x){return x.id===id;});
+  if(a){
+    a.status=a.status==='Realizada'?'Agendada':'Realizada';
+    salvar(); renderAll(); toast(a.status==='Realizada'?'✓ Audiência realizada':'Audiência reaberta');
+  }
+}
+
+function delAud(id) {
+  if(!confirm('Remover esta audiência?')) return;
+  audiencias=audiencias.filter(function(x){return x.id!==id;});
+  salvar(); renderAll(); toast('Audiência removida');
+}
+
+function limparFiltroAud() {
+  document.getElementById('aud-fi').value='';
+  document.getElementById('aud-ff').value='';
+  document.getElementById('aud-fp').value='';
+  renderAud();
+}
+
+function renderAud() {
+  // Popular select de processos no filtro
+  var sel=document.getElementById('aud-fp'); var cur=sel.value;
+  var prcsComAud=[...new Set(audiencias.map(function(a){return a.processoId;}))];
+  sel.innerHTML='<option value="">Todos os processos</option>'+processos.filter(function(p){return prcsComAud.indexOf(p.id)>=0;}).map(function(p){
+    return '<option value="'+p.id+'"'+(p.id===cur?' selected':'')+'>'+p.numero+' — '+p.autor+'</option>';
+  }).join('');
+
+  var fi=document.getElementById('aud-fi').value;
+  var ff=document.getElementById('aud-ff').value;
+  var fp=document.getElementById('aud-fp').value;
+
+  var list=audiencias.filter(function(a){
+    if(fi&&a.data<fi) return false;
+    if(ff&&a.data>ff) return false;
+    if(fp&&a.processoId!==fp) return false;
+    return true;
+  }).sort(function(a,b){return (a.data+a.hora).localeCompare(b.data+b.hora);});
+
+  // Badge no menu
+  var proximas=audiencias.filter(function(a){
+    var d=dd(a.data); return d!==null&&d>=0&&d<=7&&a.status!=='Realizada';
+  }).length;
+  var nb=document.getElementById('nb-a');
+  nb.textContent=proximas; nb.style.display=proximas?'':'none';
+
+  if(!list.length){
+    document.getElementById('audtb').innerHTML='<tr><td colspan="7"><div class="es"><div style="font-size:36px;opacity:.3">⚖️</div><div style="font-weight:600;color:var(--txt2);margin:8px 0 4px">'+(audiencias.length?'Nenhuma audiência no período':'Nenhuma audiência cadastrada')+'</div><div style="color:var(--txt3)">Clique em + Nova audiência ou cadastre pelo processo</div></div></td></tr>';
+    return;
+  }
+  document.getElementById('audtb').innerHTML=list.map(function(a){
+    var proc=processos.find(function(x){return x.id===a.processoId;});
+    var parteContraria=proc?(proc.advAutor?proc.reu:proc.autor):'—';
+    var hoje2=hj(); var d=dd(a.data);
+    var stBdg=a.status==='Realizada'
+      ?'<span class="bdg bd">✓ Realizada</span>'
+      :d<0?'<span class="bdg bl">Passou</span>'
+      :d===0?'<span class="bdg bl">🔴 Hoje!</span>'
+      :d<=3?'<span class="bdg" style="background:var(--aml);color:var(--am)">⚡ '+d+'d</span>'
+      :'<span class="bdg bo">Em '+d+'d</span>';
+    return '<tr>'
+      +'<td style="font-weight:600;white-space:nowrap">'+fd(a.data)+(a.hora?' '+a.hora:'')+'</td>'
+      +'<td class="mono" style="font-size:12px">'+(proc?proc.numero:'—')+'</td>'
+      +'<td>'+esc(parteContraria)+'</td>'
+      +'<td>'+(a.tipo||'—')+'</td>'
+      +'<td>'+(a.local||'—')+'</td>'
+      +'<td>'+stBdg+'</td>'
+      +'<td><div style="display:flex;gap:4px">'
+        +'<button class="btn btnsm '+(a.status==='Realizada'?'':'btng')+'" onclick="togAud(\''+a.id+'\')">'+(a.status==='Realizada'?'Reabrir':'✓')+'</button>'
+        +'<button class="btn btnic btnsm" onclick="editarAud(\''+a.id+'\')" title="Editar">✏</button>'
+        +'<button class="btn btnic btnsm btnd" onclick="delAud(\''+a.id+'\')">🗑</button>'
+      +'</div></td></tr>';
+  }).join('');
+}
+
+// ============================================================
+// NAVEGAÇÃO
+// ============================================================
+var PAGS={dashboard:['Dashboard','Visão geral'],processos:['Processos','Lista de processos'],prazos:['Prazos','Controle de prazos'],relatorios:['Relatórios','Prazos em aberto por período'],audiencias:['Audiências','Pauta de audiências'],suspensoes:['Suspensões','Períodos de suspensão']};
+
+function pg(name, btn) {
+  Object.keys(PAGS).forEach(function(p){
+    var el=document.getElementById('pg-'+p);
+    if(el) el.style.display=(p===name)?'':'none';
+  });
+  document.querySelectorAll('.ni').forEach(function(b){b.classList.remove('active');});
+  if(btn) btn.classList.add('active');
+  var t=PAGS[name]||[name,''];
+  document.getElementById('pgtit').textContent=t[0];
+  document.getElementById('pgsub').textContent=t[1];
+  var bt=document.getElementById('btntop');
+  if(name==='suspensoes'){bt.textContent='+ Nova suspensão';bt.onclick=function(e){e.preventDefault();abrirSusp();};}
+  else if(name==='relatorios'){bt.textContent='🖨 Gerar PDF';bt.onclick=function(e){e.preventDefault();gerarPDF();};popRelTr();}
+  else if(name==='audiencias'){bt.textContent='+ Nova audiência';bt.onclick=function(e){e.preventDefault();abrirAud();};renderAud();}
+  else{bt.textContent='+ Novo processo';bt.onclick=function(e){e.preventDefault();novoProcesso();};}
+}
+
+function renderAll() {
+  renderDash(); renderP(); renderZ(); renderSusp(); renderAud();
+}
+
+function doLogout(){
+  if(confirm('Deseja sair do sistema?')){
+    sessionStorage.removeItem('jg_auth');
+    window.location.href='index.html';
+  }
+}
+
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape') ['proc','prazo','det','susp'].forEach(function(m){fecharOv(m);});
+});
+
+// ============================================================
+// INICIALIZAÇÃO
+// ============================================================
+window.onload = function() {
+  carregar();
+  buildTipos();
+  renderAll();
+  // Carregar logo
+  var img = document.getElementById('logo-img');
+  if(img) img.src = 'data:image/png;base64,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';
+};
+</script>
+</body>
+</html>
