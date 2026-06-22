@@ -32,28 +32,31 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
   </div>
   <div class="body">
     <div class="fg">
-      <label>Usuário</label>
-      <input type="text" id="user" placeholder="usuario" onkeydown="if(event.key==='Enter')login()">
+      <label>E-mail</label>
+      <input type="email" id="user" placeholder="voce@exemplo.com" autocomplete="username" onkeydown="if(event.key==='Enter')login()">
     </div>
     <div class="fg">
       <label>Senha</label>
-      <input type="password" id="pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')login()">
+      <input type="password" id="pass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')login()">
     </div>
     <div class="errmsg" id="err"></div>
     <button class="btn" onclick="login()">Entrar</button>
   </div>
   <div class="foot">Wilquer Bosque Advogado &mdash; Sistema de Gestão Jurídica</div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
 <script>
-var USERS = {
-  'wilquer.bosque': '420621$',
-  'vivian.franca':  'viviaN19$'
-};
+// Cliente do Supabase (usa os valores do config.js)
+var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-if(sessionStorage.getItem('jg_auth')) window.location.href='Sistema.html';
+// Se já existe uma sessão ativa, vai direto pro sistema
+sb.auth.getSession().then(function(r){
+  if(r.data && r.data.session) window.location.href='Sistema.html';
+});
 
 function login(){
-  var u=document.getElementById('user').value.trim().toLowerCase();
+  var u=document.getElementById('user').value.trim();
   var p=document.getElementById('pass').value;
   var err=document.getElementById('err');
   document.getElementById('user').classList.remove('err');
@@ -62,18 +65,22 @@ function login(){
   if(!u||!p){
     if(!u)document.getElementById('user').classList.add('err');
     if(!p)document.getElementById('pass').classList.add('err');
-    err.textContent='Preencha usuário e senha.';
+    err.textContent='Preencha e-mail e senha.';
     return;
   }
-  if(USERS[u]&&USERS[u]===p){
-    sessionStorage.setItem('jg_auth',u);
+  err.textContent='Entrando…';
+  sb.auth.signInWithPassword({ email:u, password:p }).then(function(resp){
+    if(resp.error){
+      document.getElementById('user').classList.add('err');
+      document.getElementById('pass').classList.add('err');
+      err.textContent='E-mail ou senha incorretos.';
+      document.getElementById('pass').value='';
+      return;
+    }
     window.location.href='Sistema.html';
-  } else {
-    document.getElementById('user').classList.add('err');
-    document.getElementById('pass').classList.add('err');
-    err.textContent='Usuário ou senha incorretos.';
-    document.getElementById('pass').value='';
-  }
+  }).catch(function(){
+    err.textContent='Falha de conexão. Verifique a internet.';
+  });
 }
 </script>
 </body>

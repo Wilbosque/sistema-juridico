@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Migração de Dados — Wilquer Bosque</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0D1B2E;color:#1A1E2E;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:32px 16px}
+.card{background:#fff;border-radius:14px;width:100%;max-width:640px;padding:28px 32px;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+h1{font-size:20px;color:#1C2E4A;margin-bottom:6px}
+p.sub{font-size:13px;color:#6A7588;margin-bottom:20px}
+.step{border:1px solid #E2E6EE;border-radius:10px;padding:16px;margin-bottom:14px}
+.step h2{font-size:14px;color:#1C2E4A;margin-bottom:8px}
+.step p{font-size:13px;color:#4A5568;margin-bottom:10px;line-height:1.55}
+label{display:block;font-size:12px;font-weight:600;color:#4A5568;margin:8px 0 4px}
+input[type=email],input[type=password]{width:100%;padding:9px 12px;border:1.5px solid #D6DAE3;border-radius:7px;font-size:14px;font-family:inherit}
+button{padding:10px 16px;border:none;border-radius:7px;background:#1C2E4A;color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:6px}
+button:hover{background:#0D1B2E}
+button.sec{background:#fff;color:#1C2E4A;border:1.5px solid #1C2E4A}
+button:disabled{opacity:.5;cursor:not-allowed}
+.muted{font-size:12px;color:#8A96AA}
+#log{background:#0D1B2E;color:#9FE7C7;font-family:Consolas,monospace;font-size:12px;border-radius:8px;padding:12px;margin-top:16px;min-height:60px;white-space:pre-wrap;line-height:1.6;display:none}
+.ok{color:#2D6A4F}.err{color:#8B2020;font-weight:600}
+.pill{display:inline-block;background:#E6EAF2;color:#1C2E4A;border-radius:20px;padding:2px 10px;font-size:12px;font-weight:600;margin-left:6px}
+.hide{display:none}
+hr{border:none;border-top:1px solid #E2E6EE;margin:18px 0}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Migração de Dados</h1>
+  <p class="sub">Envia os processos, prazos e suspensões antigos (que ficavam só no navegador) para o banco de dados no Supabase. Rode <b>uma vez por navegador</b> que tinha dados.</p>
+
+  <!-- ETAPA 1: LOGIN -->
+  <div class="step" id="box-login">
+    <h2>1. Entrar</h2>
+    <p>Use o mesmo e-mail e senha do sistema. Isso é necessário para gravar com segurança no banco.</p>
+    <label>E-mail</label>
+    <input type="email" id="email" placeholder="voce@exemplo.com">
+    <label>Senha</label>
+    <input type="password" id="senha" placeholder="••••••••">
+    <button id="btn-login">Entrar</button>
+    <span class="muted" id="login-status"></span>
+  </div>
+
+  <!-- ETAPA 2: MIGRAR -->
+  <div class="step hide" id="box-migrar">
+    <h2>2. Migrar <span class="pill" id="quem"></span></h2>
+    <p><b>Opção A (recomendada):</b> selecione o arquivo de backup <code>.json</code> que você exportou do sistema antigo.</p>
+    <input type="file" id="arquivo" accept="application/json,.json">
+    <button id="btn-arquivo">Migrar do arquivo</button>
+    <hr>
+    <p><b>Opção B:</b> migrar os dados que ainda estão guardados <b>neste navegador</b>. Use só se você ainda não abriu a versão nova do sistema aqui.</p>
+    <button class="sec" id="btn-local">Migrar deste navegador</button>
+  </div>
+
+  <div id="log"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+var logEl = document.getElementById('log');
+
+function log(msg, cls){
+  logEl.style.display='block';
+  var span=document.createElement('div');
+  if(cls) span.className=cls;
+  span.textContent=msg;
+  logEl.appendChild(span);
+}
+
+function mostrarMigracao(){
+  document.getElementById('box-login').classList.add('hide');
+  document.getElementById('box-migrar').classList.remove('hide');
+  sb.auth.getUser().then(function(r){
+    if(r.data && r.data.user) document.getElementById('quem').textContent = r.data.user.email;
+  });
+}
+
+// Se já está logado, pula direto pra migração
+sb.auth.getSession().then(function(r){
+  if(r.data && r.data.session) mostrarMigracao();
+});
+
+document.getElementById('btn-login').onclick = function(){
+  var email=document.getElementById('email').value.trim();
+  var senha=document.getElementById('senha').value;
+  var st=document.getElementById('login-status');
+  st.textContent=' entrando…';
+  sb.auth.signInWithPassword({email:email,password:senha}).then(function(resp){
+    if(resp.error){ st.textContent=' e-mail ou senha incorretos'; return; }
+    mostrarMigracao();
+  });
+};
+
+// Envia um conjunto {processos,prazos,suspensoes} para o banco
+async function enviar(dados){
+  var p = dados.processos||[], z = dados.prazos||[], s = dados.suspensoes||[];
+  if(!p.length && !z.length && !s.length){ log('Nada encontrado para migrar.', 'err'); return; }
+  log('Enviando '+p.length+' processo(s), '+z.length+' prazo(s), '+s.length+' suspensão(ões)…');
+  var erros = 0;
+  async function up(tabela, lista){
+    for(var i=0;i<lista.length;i++){
+      var obj = lista[i];
+      var r = await sb.from(tabela).upsert({ id: obj.id, data: obj });
+      if(r.error){ erros++; log('Erro em '+tabela+' id '+obj.id+': '+r.error.message, 'err'); }
+    }
+  }
+  await up('processos', p);
+  await up('prazos', z);
+  await up('suspensoes', s);
+  if(erros===0){
+    localStorage.setItem('jg_migrado','1');
+    log('✓ Migração concluída com sucesso!', 'ok');
+    log('Pode fechar esta página e usar o sistema normalmente.', 'ok');
+  } else {
+    log('Migração terminou com '+erros+' erro(s). Verifique acima.', 'err');
+  }
+}
+
+document.getElementById('btn-arquivo').onclick = function(){
+  var f = document.getElementById('arquivo').files[0];
+  if(!f){ log('Selecione um arquivo .json primeiro.', 'err'); return; }
+  var r = new FileReader();
+  r.onload = function(e){
+    try { enviar(JSON.parse(e.target.result)); }
+    catch(x){ log('Arquivo inválido (não é um backup .json válido).', 'err'); }
+  };
+  r.readAsText(f);
+};
+
+document.getElementById('btn-local').onclick = function(){
+  function ler(k){ try{ return JSON.parse(localStorage.getItem(k)||'[]'); }catch(e){ return []; } }
+  enviar({ processos: ler('jg_p'), prazos: ler('jg_z'), suspensoes: ler('jg_s') });
+};
+</script>
+</body>
+</html>
