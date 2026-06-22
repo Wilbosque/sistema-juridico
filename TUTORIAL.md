@@ -95,6 +95,43 @@ queimadas** e não as reutilize aqui nem em outros lugares.
 
 ---
 
+## Passo 4.5 — Configurações de segurança no Supabase (fazer uma vez)
+
+Duas configurações importantes em **Authentication**:
+
+**A) Desligar o cadastro público** (impede que estranhos criem conta sozinhos):
+
+1. **Authentication → Sign In / Providers** (ou **Providers → Email**).
+2. **Desmarque / desligue** a opção **"Allow new users to sign up"** (Enable user sign-ups).
+3. Salve. A partir daí, **só usuários criados por você no painel** (Passo 4) existem.
+
+> Por que importa: o código é público e a chave também. Sem isso, qualquer um poderia
+> se cadastrar e, pela regra de acesso compartilhado, ver os dados do escritório.
+
+**B) Configurar as URLs** (faz o "Esqueci minha senha" funcionar):
+
+1. **Authentication → URL Configuration**.
+2. **Site URL:** `https://wilbosque.github.io/sistema-juridico/`
+3. Em **Redirect URLs**, adicione: `https://wilbosque.github.io/sistema-juridico/**`
+4. Salve.
+
+> Sem isso, o link de redefinição de senha vai para `localhost:3000` e dá erro.
+
+---
+
+## Esqueci minha senha (para os usuários)
+
+Na tela de login existe o link **"Esqueci minha senha"**:
+
+1. Digite seu **e-mail** no campo e clique em **Esqueci minha senha**.
+2. Você recebe um e-mail do Supabase com um link. Abra-o.
+3. O sistema mostra um campo **"Definir nova senha"** — digite a nova senha e clique em **Salvar e entrar**.
+
+> Se o link disser que expirou, é só pedir outro pelo mesmo botão. Como alternativa,
+> o administrador sempre pode redefinir/recriar o usuário direto no painel do Supabase.
+
+---
+
 ## Passo 5 — Publicar (deploy) no GitHub
 
 O site é hospedado de graça pelo GitHub Pages. Basta atualizar os arquivos no repositório.

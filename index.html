@@ -31,16 +31,30 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
     <div class="div">Acesso ao sistema</div>
   </div>
   <div class="body">
-    <div class="fg">
-      <label>E-mail</label>
-      <input type="email" id="user" placeholder="voce@exemplo.com" autocomplete="username" onkeydown="if(event.key==='Enter')login()">
+    <div id="login-panel">
+      <div class="fg">
+        <label>E-mail</label>
+        <input type="email" id="user" placeholder="voce@exemplo.com" autocomplete="username" onkeydown="if(event.key==='Enter')login()">
+      </div>
+      <div class="fg">
+        <label>Senha</label>
+        <input type="password" id="pass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')login()">
+      </div>
+      <button class="btn" onclick="login()">Entrar</button>
+      <div style="text-align:center;margin-top:12px">
+        <a href="#" id="forgot-link" onclick="esqueciSenha();return false" style="font-size:12px;color:#1C2E4A;text-decoration:none">Esqueci minha senha</a>
+      </div>
     </div>
-    <div class="fg">
-      <label>Senha</label>
-      <input type="password" id="pass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')login()">
+
+    <div id="reset-panel" style="display:none">
+      <div class="fg">
+        <label>Definir nova senha</label>
+        <input type="password" id="newpass" placeholder="mínimo 6 caracteres" autocomplete="new-password" onkeydown="if(event.key==='Enter')salvarNovaSenha()">
+      </div>
+      <button class="btn" onclick="salvarNovaSenha()">Salvar e entrar</button>
     </div>
+
     <div class="errmsg" id="err"></div>
-    <button class="btn" onclick="login()">Entrar</button>
   </div>
   <div class="foot">Wilquer Bosque Advogado &mdash; Sistema de Gestão Jurídica</div>
 </div>
@@ -50,10 +64,67 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 // Cliente do Supabase (usa os valores do config.js)
 var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Se já existe uma sessão ativa, vai direto pro sistema
-sb.auth.getSession().then(function(r){
-  if(r.data && r.data.session) window.location.href='Sistema.html';
+var err = document.getElementById('err');
+
+// Detecta se a página foi aberta por um link de recuperação de senha (ou erro de link)
+var hash = window.location.hash || '';
+var emRecuperacao = hash.indexOf('type=recovery') !== -1;
+var temErroLink   = hash.indexOf('error') !== -1;
+
+if (temErroLink) {
+  err.textContent = 'O link expirou ou é inválido. Clique em "Esqueci minha senha" para receber um novo.';
+}
+
+// Só redireciona pro sistema se NÃO estiver no meio de uma recuperação
+if (!emRecuperacao && !temErroLink) {
+  sb.auth.getSession().then(function(r){
+    if (r.data && r.data.session) window.location.href = 'Sistema.html';
+  });
+}
+if (emRecuperacao) mostrarPainelReset();
+
+// Quando o usuário chega pelo link de recuperação, mostra o campo de nova senha
+sb.auth.onAuthStateChange(function(event){
+  if (event === 'PASSWORD_RECOVERY') mostrarPainelReset();
 });
+
+function mostrarPainelReset(){
+  document.getElementById('login-panel').style.display = 'none';
+  document.getElementById('reset-panel').style.display = 'block';
+  err.textContent = 'Defina sua nova senha abaixo.';
+}
+
+// Envia o e-mail com o link de redefinição
+function esqueciSenha(){
+  var u = document.getElementById('user').value.trim();
+  if (!u) {
+    document.getElementById('user').classList.add('err');
+    err.textContent = 'Digite seu e-mail no campo acima e clique novamente.';
+    return;
+  }
+  err.textContent = 'Enviando link de redefinição…';
+  sb.auth.resetPasswordForEmail(u, {
+    redirectTo: window.location.origin + window.location.pathname
+  }).then(function(r){
+    if (r.error) { err.textContent = 'Não foi possível enviar. Verifique o e-mail digitado.'; return; }
+    err.textContent = 'Enviamos um link para ' + u + '. Confira seu e-mail (e o spam).';
+  });
+}
+
+// Salva a nova senha (já com a sessão de recuperação ativa)
+function salvarNovaSenha(){
+  var nova = document.getElementById('newpass').value;
+  if (!nova || nova.length < 6) {
+    document.getElementById('newpass').classList.add('err');
+    err.textContent = 'A senha precisa ter pelo menos 6 caracteres.';
+    return;
+  }
+  err.textContent = 'Salvando…';
+  sb.auth.updateUser({ password: nova }).then(function(r){
+    if (r.error) { err.textContent = 'Não foi possível salvar: ' + r.error.message; return; }
+    window.location.href = 'Sistema.html';
+  });
+}
 
 function login(){
   var u=document.getElementById('user').value.trim();
