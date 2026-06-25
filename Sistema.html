@@ -1184,8 +1184,11 @@ function gRelList() {
   var rtp=document.getElementById('rtp').value;
   if(!ini||!fim) return null;
   return prazos.filter(function(pz){
-    if(pz.status==='Cumprido'||!pz.fatal) return false;
-    if(pz.fatal<ini||pz.fatal>fim) return false;
+    if(pz.status==='Cumprido') return false;
+    // Filtra pela data de ELABORAÇÃO; quando não houver (ex.: audiências), usa a fatal.
+    var ref = pz.elaboracao || pz.fatal;
+    if(!ref) return false;
+    if(ref<ini||ref>fim) return false;
     var proc=processos.find(function(x){return x.id===pz.processoId;});
     if(trib&&proc&&proc.tribunal!==trib) return false;
     if(tipo&&proc&&proc.tipo!==tipo) return false;
@@ -1194,7 +1197,7 @@ function gRelList() {
     if(rtp==='Audiências'&&!isAud) return false;
     if(rtp==='outros'&&isAud) return false;
     return true;
-  }).sort(function(a,b){return a.fatal.localeCompare(b.fatal);});
+  }).sort(function(a,b){return (a.elaboracao||a.fatal).localeCompare(b.elaboracao||b.fatal);});
 }
 
 function prevRel() {
